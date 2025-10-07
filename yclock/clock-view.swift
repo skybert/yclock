@@ -67,11 +67,33 @@ class ClockView: NSView {
         let attributedString = NSAttributedString(string: timeString, attributes: attributes)
         let textSize = attributedString.size()
         let textRect = NSRect(x: (bounds.width - textSize.width) / 2,
-                             y: (bounds.height - textSize.height) / 2,
+                             y: (bounds.height - textSize.height) / 2 - textSize.height * 0.3,
                              width: textSize.width,
                              height: textSize.height)
 
         attributedString.draw(in: textRect)
+
+        // Draw date below the time
+        let date = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE d. MMM"
+        let dateString = dateFormatter.string(from: date)
+
+        let dateFontSize = fontSize * 0.4
+        let dateAttributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: dateFontSize, weight: .regular),
+            .foregroundColor: theme.foreground,
+            .paragraphStyle: paragraphStyle
+        ]
+
+        let dateAttributedString = NSAttributedString(string: dateString, attributes: dateAttributes)
+        let dateSize = dateAttributedString.size()
+        let dateRect = NSRect(x: (bounds.width - dateSize.width) / 2,
+                             y: textRect.maxY + textSize.height * 0.2,
+                             width: dateSize.width,
+                             height: dateSize.height)
+
+        dateAttributedString.draw(in: dateRect)
     }
 
     func drawAnalogClock(hour: Int, minute: Int, second: Int) {
