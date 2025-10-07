@@ -14,6 +14,17 @@ from X11 that you're used to on Linux and the BSDs.
 - Translucent window
 - Themeable via configuration file
 
+## Screenshots
+<img
+  src="doc/yclock-analogue.png"
+  alt="yclock analogue"
+/>
+
+<img
+  src="doc/yclock-digital.png"
+  alt="yclock digital"
+/>
+
 ## Building
 
 Build the application:
