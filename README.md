@@ -6,9 +6,13 @@ from X11 that you're used to on Linux and the BSDs.
 
 ## Features
 
-- Analog clock face with hour, minute, and second hands
+- Analog and digital clock modes (toggle with ⌘D)
+- Optional seconds display (toggle with ⌘S)
 - Real-time updates every second
-- Clean, minimal interface
+- Clean, minimal interface with no window chrome
+- Draggable anywhere on the clock face
+- Translucent window
+- Themeable via configuration file
 
 ## Building
 
@@ -36,6 +40,20 @@ $ make run
 Clean build artifacts:
 ```bash
 $ make clean
+```
+
+## Configuration
+
+`yclock` can be themed by creating a `~/.yclock.conf` file. See
+`conf/yclock.conf` for the format. The default theme is Catppuccin
+Macchiato.
+
+Example configuration:
+```perl
+# Colors in RGB hex format
+background = #24273a
+foreground = #cad3f5
+second_hand = #ed8796
 ```
 
 ## Requirements

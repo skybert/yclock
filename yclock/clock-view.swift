@@ -4,6 +4,7 @@ class ClockView: NSView {
     var timer: Timer?
     var isDigital: Bool = false
     var showSeconds: Bool = false
+    var theme: Theme = Theme.load()
     
     override init(frame: NSRect) {
         super.init(frame: frame)
@@ -28,7 +29,7 @@ class ClockView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         
-        NSColor.white.withAlphaComponent(0.7).setFill()
+        theme.background.setFill()
         bounds.fill()
         
         // Get current time
@@ -56,7 +57,7 @@ class ClockView: NSView {
         let fontSize = min(bounds.width, bounds.height) * 0.2
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .medium),
-            .foregroundColor: NSColor.black,
+            .foregroundColor: theme.foreground,
             .paragraphStyle: paragraphStyle
         ]
         
@@ -75,7 +76,7 @@ class ClockView: NSView {
         let radius = min(bounds.width, bounds.height) / 2 - 10
         
         // Draw clock face
-        NSColor.black.setStroke()
+        theme.foreground.setStroke()
         let circlePath = NSBezierPath(ovalIn: NSRect(x: center.x - radius,
                                                       y: center.y - radius,
                                                       width: radius * 2,
@@ -112,12 +113,12 @@ class ClockView: NSView {
         // Draw second hand
         if showSeconds {
             let secondAngle = CGFloat(second) * .pi / 30 - .pi / 2
-            NSColor.red.setStroke()
+            theme.secondHand.setStroke()
             drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: 2)
         }
         
         // Draw center dot
-        NSColor.black.setFill()
+        theme.foreground.setFill()
         let dotRadius: CGFloat = 5
         let dotRect = NSRect(x: center.x - dotRadius,
                             y: center.y - dotRadius,

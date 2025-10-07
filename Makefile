@@ -9,7 +9,7 @@ RESOURCES_DIR = $(CONTENTS_DIR)/Resources
 EXECUTABLE = $(MACOS_DIR)/$(APP_NAME)
 INSTALL_DIR = /Applications
 
-SOURCES = yclock/main.swift yclock/app-delegate.swift yclock/clock-view.swift
+SOURCES = yclock/main.swift yclock/app-delegate.swift yclock/clock-view.swift yclock/theme.swift
 SWIFT_FLAGS = -O
 
 build: $(EXECUTABLE)

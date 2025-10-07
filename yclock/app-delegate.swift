@@ -9,7 +9,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let windowRect = NSRect(x: 100, y: 100, width: 164, height: 164)
         window = NSWindow(contentRect: windowRect,
-                         styleMask: [.titled, .closable, .miniaturizable, .resizable],
+                         styleMask: [.borderless],
                          backing: .buffered,
                          defer: false)
         window.title = "yclock"
@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.isOpaque = false
         window.alphaValue = 0.85
         window.backgroundColor = NSColor.clear
+        window.isMovableByWindowBackground = true
         
         clockView = ClockView(frame: window.contentView!.bounds)
         clockView.autoresizingMask = [.width, .height]
