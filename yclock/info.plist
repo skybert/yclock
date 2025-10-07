@@ -7,7 +7,7 @@
     <key>CFBundleExecutable</key>
     <string>yclock</string>
     <key>CFBundleIdentifier</key>
-    <string>com.skybert.yclock</string>
+    <string>net.skybert.yclock</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
