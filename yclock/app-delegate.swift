@@ -3,16 +3,18 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     var clockView: ClockView!
-    
+
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.regular)
-        
         let windowRect = NSRect(x: 100, y: 100, width: 164, height: 164)
+
+        NSApp.setActivationPolicy(.accessory)
         window = NSWindow(contentRect: windowRect,
-                         styleMask: [.borderless],
+                         styleMask: [.titled, .fullSizeContentView],
                          backing: .buffered,
                          defer: false)
         window.title = "yclock"
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
         window.center()
         window.level = .floating
         window.isOpaque = false
