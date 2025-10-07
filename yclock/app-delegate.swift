@@ -34,7 +34,26 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         window.title = "yclock"
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
-        window.center()
+
+        // Restore window position or center if out of bounds
+        if let savedPosition = Config.loadWindowPosition() {
+            let newOrigin = NSPoint(x: savedPosition.x, y: savedPosition.y)
+            let proposedFrame = NSRect(origin: newOrigin, size: window.frame.size)
+
+            // Check if window is visible on any screen
+            let isVisible = NSScreen.screens.contains { screen in
+                screen.visibleFrame.intersects(proposedFrame)
+            }
+
+            if isVisible {
+                window.setFrameOrigin(newOrigin)
+            } else {
+                window.center()
+            }
+        } else {
+            window.center()
+        }
+
         window.level = .floating
         window.isOpaque = false
         window.alphaValue = 0.85
@@ -97,6 +116,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func toggleSeconds() {
         clockView.toggleSeconds()
+    }
+
+    public func applicationWillTerminate(_ notification: Notification) {
+        // Save window position before closing
+        let origin = window.frame.origin
+        Config.saveWindowPosition(x: origin.x, y: origin.y)
     }
 
     public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
