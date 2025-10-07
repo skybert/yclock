@@ -44,9 +44,12 @@ $ make clean
 
 ## Configuration
 
-`yclock` can be themed by creating a `~/.yclock.conf` file. See
-`conf/yclock.conf` for the format. The default theme is Catppuccin
-Macchiato.
+`yclock` can be themed by creating a configuration file. The app looks for config files in the following order:
+1. `~/.yclock.conf`
+2. `~/.config/yclock/yclock.conf`
+3. `$XDG_CONFIG_HOME/yclock/yclock.conf`
+
+See `conf/yclock.conf` for the format. The default theme is Catppuccin Macchiato.
 
 Example configuration:
 ```perl

@@ -13,9 +13,31 @@ struct Theme {
     
     static func load() -> Theme {
         let homeDir = FileManager.default.homeDirectoryForCurrentUser
-        let configPath = homeDir.appendingPathComponent(".yclock.conf")
         
-        guard let contents = try? String(contentsOf: configPath, encoding: .utf8) else {
+        // Check ~/.yclock.conf first, then ~/.config, then XDG_CONFIG_HOME
+        var configPath: URL?
+        
+        let homePath = homeDir.appendingPathComponent(".yclock.conf")
+        if FileManager.default.fileExists(atPath: homePath.path) {
+            configPath = homePath
+        }
+        
+        if configPath == nil {
+            let defaultXdgPath = homeDir.appendingPathComponent(".config/yclock/yclock.conf")
+            if FileManager.default.fileExists(atPath: defaultXdgPath.path) {
+                configPath = defaultXdgPath
+            }
+        }
+        
+        if configPath == nil, let xdgConfigHome = ProcessInfo.processInfo.environment["XDG_CONFIG_HOME"] {
+            let xdgPath = URL(fileURLWithPath: xdgConfigHome).appendingPathComponent("yclock/yclock.conf")
+            if FileManager.default.fileExists(atPath: xdgPath.path) {
+                configPath = xdgPath
+            }
+        }
+        
+        guard let configPath = configPath,
+              let contents = try? String(contentsOf: configPath, encoding: .utf8) else {
             return .catppuccinMacchiato
         }
         
