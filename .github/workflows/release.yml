@@ -13,27 +13,27 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - name: Checkout code
+    - name: checkout-code
       uses: actions/checkout@v4
 
-    - name: Setup Xcode
+    - name: setup-xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: latest-stable
 
-    - name: Build macOS binary
+    - name: build-macos-multi-arch-binary
       run: |
         swift build -c release --arch arm64 --arch x86_64
 
-    - name: Create binary archive
+    - name: create-archive
       run: |
         cd .build/apple/Products/Release
-        tar -czf $GITHUB_WORKSPACE/yclock.tar.gz yclock
+        tar -czf $GITHUB_WORKSPACE/yclock-${{ github.ref_name }}.tar.gz yclock
 
-    - name: Create Release
+    - name: create-release
       uses: softprops/action-gh-release@v1
       with:
-        files: yclock.tar.gz
+        files: yclock-${{ github.ref_name }}.tar.gz
         draft: false
         prerelease: false
       env:
