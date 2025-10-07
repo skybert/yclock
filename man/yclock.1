@@ -1,0 +1,114 @@
+.TH YCLOCK 1 "2024" "yclock 1.0" "User Commands"
+.SH NAME
+yclock \- a simple analog and digital clock for macOS
+.SH SYNOPSIS
+.B yclock
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+.B yclock
+is a simple clock application for macOS, inspired by xclock from X11. It provides both analog and digital clock modes with customizable appearance through configuration files and command line options.
+.PP
+The clock window is draggable, translucent, and floats above other windows. It updates in real-time every second and supports optional seconds display.
+.SH OPTIONS
+.TP
+.B \-\-digital
+Start in digital clock mode
+.TP
+.B \-\-analog
+Start in analog clock mode (default)
+.TP
+.B \-\-analogue
+Same as \fB\-\-analog\fR (British spelling)
+.TP
+.B \-\-seconds
+Show seconds hand in analog mode or seconds in digital mode
+.TP
+.B \-\-font-name \fINAME\fR
+Specify font name for digital clock. If the font name contains spaces, enclose it in quotes.
+Examples: Menlo, Monaco, "Courier New", Helvetica
+.TP
+.B \-\-help
+Display help message and exit
+.SH CONFIGURATION
+.B yclock
+can be customized using a configuration file. The application searches for configuration files in the following order:
+.IP 1. 4
+.I ~/.yclock.conf
+.IP 2. 4
+.I ~/.config/yclock/yclock.conf
+.IP 3. 4
+.I $XDG_CONFIG_HOME/yclock/yclock.conf
+.PP
+Configuration file format (key = value):
+.TP
+.B background = \fI#RRGGBB\fR
+Background color in RGB hex format (e.g., #24273a)
+.TP
+.B foreground = \fI#RRGGBB\fR
+Foreground color for text and clock hands in RGB hex format (e.g., #cad3f5)
+.TP
+.B second_hand = \fI#RRGGBB\fR
+Second hand color in RGB hex format (e.g., #ed8796)
+.TP
+.B mode = \fIanalog|digital\fR
+Clock mode, either "analog" or "digital" (default: analog)
+.TP
+.B width = \fINUMBER\fR
+Window width in pixels (default: 164)
+.TP
+.B height = \fINUMBER\fR
+Window height in pixels (default: 164)
+.TP
+.B font = \fINAME\fR
+Font name for digital clock (optional). Examples: Menlo, Monaco, Courier
+.SH KEYBOARD SHORTCUTS
+When the clock window is active:
+.TP
+.B ⌘D
+Toggle between digital and analog modes
+.TP
+.B ⌘S
+Toggle seconds display on/off
+.TP
+.B ⌘Q
+Quit the application
+.SH EXAMPLES
+.TP
+Start in digital mode with seconds:
+.B yclock \-\-digital \-\-seconds
+.TP
+Start in analog mode (default):
+.B yclock \-\-analog
+.TP
+Use a custom font for digital clock:
+.B yclock \-\-digital \-\-font-name Menlo
+.TP
+Use a font with spaces in the name:
+.B yclock \-\-font-name "Courier New" \-\-seconds
+.SH FILES
+.TP
+.I ~/.yclock.conf
+User configuration file
+.TP
+.I ~/.config/yclock/yclock.conf
+XDG configuration file
+.TP
+.I $XDG_CONFIG_HOME/yclock/yclock.conf
+XDG configuration file (if XDG_CONFIG_HOME is set)
+.SH ENVIRONMENT
+.TP
+.B XDG_CONFIG_HOME
+If set, yclock will look for configuration files in
+.I $XDG_CONFIG_HOME/yclock/yclock.conf
+.SH AUTHORS
+AUTHORS_FILE_CONTENTS
+.SH BUGS
+Report bugs at: https://github.com/skybert/yclock/issues
+.SH SEE ALSO
+.BR xclock (1)
+.PP
+Project homepage: https://github.com/skybert/yclock
+.SH COPYRIGHT
+Copyright \(co 2024. Licensed under the Apache License 2.0.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.

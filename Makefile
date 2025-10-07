@@ -1,4 +1,4 @@
-.PHONY: build run clean install test
+.PHONY: build run clean install test 
 
 APP_NAME = yclock
 BUILD_DIR = build
@@ -8,6 +8,7 @@ MACOS_DIR = $(CONTENTS_DIR)/MacOS
 RESOURCES_DIR = $(CONTENTS_DIR)/Resources
 EXECUTABLE = $(MACOS_DIR)/$(APP_NAME)
 INSTALL_DIR = /Applications
+MAN_DIR = ~/.local/share/man/man1
 
 SOURCES = yclock/main.swift yclock/app-delegate.swift yclock/clock-view.swift yclock/theme.swift
 SWIFT_FLAGS = -O
@@ -37,7 +38,12 @@ install: build
 	@rm -rf $(INSTALL_DIR)/$(APP_NAME).app
 	@cp -R $(APP_BUNDLE) $(INSTALL_DIR)/
 	@echo "Installation complete: $(INSTALL_DIR)/$(APP_NAME).app"
+	@echo "Installing man page to $(MAN_DIR)..."
+	@mkdir -p $(MAN_DIR)
+	@sed 's/AUTHORS_FILE_CONTENTS/Written by '"$$(cat AUTHORS | tr '\n' ',' | sed 's/,$$/\./' | sed 's/,/, /g')"'/' man/yclock.1 > $(MAN_DIR)/yclock.1
+	@echo "Man page installed. View with: man yclock"
 
 test:
 	@echo "Running tests..."
 	@swift test
+

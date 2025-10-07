@@ -83,48 +83,40 @@ font = Menlo
 
 ## Building
 
-Build the application:
 ```bash
 $ make clean && make build
 ```
 
 ## Running
 
-Run the application:
 ```bash
 $ make run
 ```
 
-Or run directly with options:
-```bash
-$ ./build/yclock.app/Contents/MacOS/yclock --digital --seconds
-```
-
 ## Testing
 
-Run the test suite:
 ```bash
 $ make test
 ```
 
-Or using Swift Package Manager:
-```bash
-$ swift test
-```
-
 ## Installing
 
-Install the application to /Applications:
+Install the application and man page to /Applications:
 ```bash
 $ make install
 ```
 
-## Development
+This will install both the application bundle and the man page. After
+installation, you can view the manual with:
 
-The project uses Swift Package Manager for dependency management and testing.
-The codebase is split into:
-- `yClockLib` - Core clock functionality (testable library)
-- `yclock` - Main executable and command line interface
+```bash
+$ man yclock
+```
+and start the application with:
+
+```bash
+$ yclock
+```
 
 ## License
 
