@@ -3,10 +3,12 @@ import Cocoa
 public struct CommandLineOptions {
     public var isDigital: Bool?
     public var showSeconds: Bool?
+    public var fontName: String?
     
-    public init(isDigital: Bool? = nil, showSeconds: Bool? = nil) {
+    public init(isDigital: Bool? = nil, showSeconds: Bool? = nil, fontName: String? = nil) {
         self.isDigital = isDigital
         self.showSeconds = showSeconds
+        self.fontName = fontName
     }
 }
 
@@ -45,6 +47,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         // Use command line options if provided, otherwise fall back to config
         clockView.isDigital = options.isDigital ?? config.isDigital
         clockView.showSeconds = options.showSeconds ?? false
+        clockView.fontName = options.fontName ?? config.fontName
         
         clockView.theme = Theme(
             background: config.background,

@@ -94,4 +94,41 @@ struct CommandLineTests {
         let options2 = try parseCommandLine(arguments: ["yclock", "--analog", "--digital"])
         #expect(options2.isDigital == true)
     }
+    
+    @Test("Parse --font-name sets fontName")
+    func testFontNameFlag() throws {
+        let options = try parseCommandLine(arguments: ["yclock", "--font-name", "Menlo"])
+        
+        #expect(options.fontName == "Menlo")
+        #expect(options.isDigital == nil)
+        #expect(options.showSeconds == nil)
+    }
+    
+    @Test("Parse --font-name with spaces")
+    func testFontNameWithSpaces() throws {
+        let options = try parseCommandLine(arguments: ["yclock", "--font-name", "Courier New"])
+        
+        #expect(options.fontName == "Courier New")
+    }
+    
+    @Test("Parse --font-name with multiple options")
+    func testFontNameWithOtherFlags() throws {
+        let options = try parseCommandLine(arguments: ["yclock", "--digital", "--font-name", "Monaco", "--seconds"])
+        
+        #expect(options.isDigital == true)
+        #expect(options.showSeconds == true)
+        #expect(options.fontName == "Monaco")
+    }
+    
+    @Test("Parse --font-name without value throws error")
+    func testFontNameWithoutValue() {
+        do {
+            _ = try parseCommandLine(arguments: ["yclock", "--font-name"])
+            #expect(Bool(false), "Should have thrown an error")
+        } catch let error as CommandLineError {
+            #expect(error == CommandLineError.unknownOption("--font-name requires a value"))
+        } catch {
+            #expect(Bool(false), "Wrong error type thrown")
+        }
+    }
 }

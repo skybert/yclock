@@ -5,6 +5,7 @@ public class ClockView: NSView {
     var isDigital: Bool = false
     var showSeconds: Bool = false
     public var theme: Theme = Theme.catppuccinMacchiato
+    public var fontName: String?
 
     public override init(frame: NSRect) {
         super.init(frame: frame)
@@ -58,8 +59,17 @@ public class ClockView: NSView {
         paragraphStyle.alignment = .center
 
         let fontSize = min(bounds.width, bounds.height) * 0.3
+        
+        // Use custom font if specified, otherwise use monospaced digits
+        let font: NSFont
+        if let fontName = fontName, let customFont = NSFont(name: fontName, size: fontSize) {
+            font = customFont
+        } else {
+            font = NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .medium)
+        }
+        
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .medium),
+            .font: font,
             .foregroundColor: theme.foreground,
             .paragraphStyle: paragraphStyle
         ]
@@ -80,8 +90,17 @@ public class ClockView: NSView {
         let dateString = dateFormatter.string(from: date)
 
         let dateFontSize = fontSize * 0.4
+        
+        // Use same custom font for date if specified
+        let dateFont: NSFont
+        if let fontName = fontName, let customFont = NSFont(name: fontName, size: dateFontSize) {
+            dateFont = customFont
+        } else {
+            dateFont = NSFont.systemFont(ofSize: dateFontSize, weight: .regular)
+        }
+        
         let dateAttributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: dateFontSize, weight: .regular),
+            .font: dateFont,
             .foregroundColor: theme.foreground,
             .paragraphStyle: paragraphStyle
         ]

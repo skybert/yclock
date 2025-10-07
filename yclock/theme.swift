@@ -7,6 +7,7 @@ public struct Config {
     let isDigital: Bool
     let width: CGFloat
     let height: CGFloat
+    let fontName: String?
 
     public static let `default` = Config(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
@@ -14,7 +15,8 @@ public struct Config {
         secondHand: NSColor(red: 237/255, green: 135/255, blue: 150/255, alpha: 1.0),
         isDigital: false,
         width: 164,
-        height: 164
+        height: 164,
+        fontName: nil
     )
 
     public static func load() -> Config {
@@ -54,6 +56,7 @@ public struct Config {
         var isDigital: Bool?
         var width: CGFloat?
         var height: CGFloat?
+        var fontName: String?
 
         for line in contents.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -84,6 +87,8 @@ public struct Config {
                 if let h = Double(value) {
                     height = CGFloat(h)
                 }
+            case "font":
+                fontName = value
             default:
                 break
             }
@@ -95,7 +100,8 @@ public struct Config {
             secondHand: secondHand ?? Config.default.secondHand,
             isDigital: isDigital ?? Config.default.isDigital,
             width: width ?? Config.default.width,
-            height: height ?? Config.default.height
+            height: height ?? Config.default.height,
+            fontName: fontName ?? Config.default.fontName
         )
     }
 

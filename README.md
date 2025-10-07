@@ -36,11 +36,14 @@ Options:
   --analog          Start in analog mode (default)
   --analogue        Same as --analog
   --seconds         Show seconds hand/display
+  --font-name NAME  Specify font name for digital clock
   --help            Show this help message
 
 Examples:
   yclock --digital --seconds
   yclock --analog
+  yclock --digital --font-name Menlo
+  yclock --font-name "Courier New" --seconds
 ```
 
 ## Configuration
@@ -67,6 +70,10 @@ mode = analog
 # Window dimensions
 width = 164
 height = 164
+
+# Font name for digital clock (optional)
+# Examples: Menlo, Monaco, Courier, Helvetica, Arial
+font = Menlo
 ```
 
 ## Requirements
