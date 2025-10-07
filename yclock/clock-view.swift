@@ -3,7 +3,7 @@ import Cocoa
 class ClockView: NSView {
     var timer: Timer?
     var isDigital: Bool = false
-    var showSeconds: Bool = true
+    var showSeconds: Bool = false
     
     override init(frame: NSRect) {
         super.init(frame: frame)
