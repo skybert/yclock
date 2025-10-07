@@ -119,13 +119,6 @@ The codebase is split into:
 - `yClockLib` - Core clock functionality (testable library)
 - `yclock` - Main executable and command line interface
 
-Available make targets:
-- `make build` - Build the application
-- `make run` - Build and run the application
-- `make test` - Run tests
-- `make clean` - Clean build artifacts
-- `make install` - Install to /Applications
-
 ## License
 
 This project is licensed under the Apache License 2.0 - see the
