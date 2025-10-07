@@ -8,6 +8,8 @@ public struct Config {
     let width: CGFloat
     let height: CGFloat
     let fontName: String?
+    let windowX: CGFloat?
+    let windowY: CGFloat?
 
     public static let `default` = Config(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
@@ -16,7 +18,9 @@ public struct Config {
         isDigital: false,
         width: 164,
         height: 164,
-        fontName: nil
+        fontName: nil,
+        windowX: nil,
+        windowY: nil
     )
 
     public static func load() -> Config {
@@ -57,6 +61,8 @@ public struct Config {
         var width: CGFloat?
         var height: CGFloat?
         var fontName: String?
+        var windowX: CGFloat?
+        var windowY: CGFloat?
 
         for line in contents.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -89,6 +95,14 @@ public struct Config {
                 }
             case "font":
                 fontName = value
+            case "window_x":
+                if let x = Double(value) {
+                    windowX = CGFloat(x)
+                }
+            case "window_y":
+                if let y = Double(value) {
+                    windowY = CGFloat(y)
+                }
             default:
                 break
             }
@@ -101,7 +115,9 @@ public struct Config {
             isDigital: isDigital ?? Config.default.isDigital,
             width: width ?? Config.default.width,
             height: height ?? Config.default.height,
-            fontName: fontName ?? Config.default.fontName
+            fontName: fontName ?? Config.default.fontName,
+            windowX: windowX,
+            windowY: windowY
         )
     }
 
@@ -118,6 +134,74 @@ public struct Config {
         let b = CGFloat(rgb & 0x0000FF) / 255.0
 
         return NSColor(red: r, green: g, blue: b, alpha: 1.0)
+    }
+
+    private static func getStateDirectory() -> URL? {
+        // Prefer XDG_STATE_HOME if set
+        if let xdgStateHome = ProcessInfo.processInfo.environment["XDG_STATE_HOME"] {
+            let stateDir = URL(fileURLWithPath: xdgStateHome).appendingPathComponent("yclock")
+            try? FileManager.default.createDirectory(at: stateDir, withIntermediateDirectories: true)
+            return stateDir
+        }
+
+        // Fall back to macOS Application Support directory (which is for state data on macOS)
+        if let stateDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let appStateDir = stateDir.appendingPathComponent("yclock")
+            try? FileManager.default.createDirectory(at: appStateDir, withIntermediateDirectories: true)
+            return appStateDir
+        }
+
+        return nil
+    }
+
+    public static func saveWindowPosition(x: CGFloat, y: CGFloat) {
+        guard let stateDir = getStateDirectory() else { return }
+        let statePath = stateDir.appendingPathComponent("window-position")
+
+        let content = "window_x = \(x)\nwindow_y = \(y)\n"
+        try? content.write(to: statePath, atomically: true, encoding: .utf8)
+    }
+
+    public static func loadWindowPosition() -> (x: CGFloat, y: CGFloat)? {
+        guard let stateDir = getStateDirectory() else { return nil }
+        let statePath = stateDir.appendingPathComponent("window-position")
+
+        guard let contents = try? String(contentsOf: statePath, encoding: .utf8) else {
+            return nil
+        }
+
+        var x: CGFloat?
+        var y: CGFloat?
+
+        for line in contents.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty { continue }
+
+            let parts = trimmed.components(separatedBy: "=")
+            guard parts.count == 2 else { continue }
+
+            let key = parts[0].trimmingCharacters(in: .whitespaces)
+            let value = parts[1].trimmingCharacters(in: .whitespaces)
+
+            switch key {
+            case "window_x":
+                if let xVal = Double(value) {
+                    x = CGFloat(xVal)
+                }
+            case "window_y":
+                if let yVal = Double(value) {
+                    y = CGFloat(yVal)
+                }
+            default:
+                break
+            }
+        }
+
+        if let x = x, let y = y {
+            return (x, y)
+        }
+
+        return nil
     }
 }
 
