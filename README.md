@@ -1,6 +1,8 @@
 # yclock
 
-A simple analog clock application for macOS, inspired by xclock on Linux.
+A simple analog clock application for macOS, inspired by
+[xclock](https://www.x.org/releases/X11R7.6/doc/man/man1/xclock.1.xhtml)
+from X11 that you're used to on Linux and the BSDs.
 
 ## Features
 
