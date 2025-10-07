@@ -6,13 +6,14 @@ APP_BUNDLE = $(BUILD_DIR)/$(APP_NAME).app
 CONTENTS_DIR = $(APP_BUNDLE)/Contents
 MACOS_DIR = $(CONTENTS_DIR)/MacOS
 RESOURCES_DIR = $(CONTENTS_DIR)/Resources
+EXECUTABLE = $(MACOS_DIR)/$(APP_NAME)
 
-SOURCES = yclock/app-delegate.swift yclock/clock-view.swift
+SOURCES = yclock/main.swift yclock/app-delegate.swift yclock/clock-view.swift
 SWIFT_FLAGS = -O
 
-build: $(APP_BUNDLE)
+build: $(EXECUTABLE)
 
-$(APP_BUNDLE): $(SOURCES) yclock/info.plist
+$(EXECUTABLE): $(SOURCES) yclock/info.plist
 	@echo "Building $(APP_NAME)..."
 	@mkdir -p $(MACOS_DIR)
 	@mkdir -p $(RESOURCES_DIR)

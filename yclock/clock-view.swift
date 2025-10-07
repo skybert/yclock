@@ -19,6 +19,10 @@ class ClockView: NSView {
         }
     }
     
+    override var isFlipped: Bool {
+        return true
+    }
+    
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         
