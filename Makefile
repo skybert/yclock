@@ -19,8 +19,7 @@ $(EXECUTABLE): $(SOURCES) yclock/info.plist
 	@mkdir -p $(MACOS_DIR)
 	@mkdir -p $(RESOURCES_DIR)
 	@swiftc $(SWIFT_FLAGS) -o $(MACOS_DIR)/$(APP_NAME) $(SOURCES) \
-		-framework Cocoa \
-		-Xcc -Wno-error=module-import-redundancy
+		-framework Cocoa
 	@cp yclock/info.plist $(CONTENTS_DIR)/Info.plist
 	@echo "Build complete: $(APP_BUNDLE)"
 
