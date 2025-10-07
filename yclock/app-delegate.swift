@@ -1,10 +1,10 @@
 import Cocoa
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+public class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     var clockView: ClockView!
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    public func applicationDidFinishLaunching(_ notification: Notification) {
         let config = Config.load()
         let windowRect = NSRect(x: 100, y: 100, width: config.width, height: config.height)
 
@@ -76,7 +76,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         clockView.toggleSeconds()
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+    public func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
     }
 }

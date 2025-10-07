@@ -1,4 +1,4 @@
-.PHONY: build run clean install
+.PHONY: build run clean install test
 
 APP_NAME = yclock
 BUILD_DIR = build
@@ -18,8 +18,8 @@ $(EXECUTABLE): $(SOURCES) yclock/info.plist
 	@echo "Building $(APP_NAME)..."
 	@mkdir -p $(MACOS_DIR)
 	@mkdir -p $(RESOURCES_DIR)
-	@swiftc $(SWIFT_FLAGS) -o $(MACOS_DIR)/$(APP_NAME) $(SOURCES) \
-		-framework Cocoa
+	@swift build -c release
+	@cp .build/release/$(APP_NAME) $(MACOS_DIR)/$(APP_NAME)
 	@cp yclock/info.plist $(CONTENTS_DIR)/Info.plist
 	@echo "Build complete: $(APP_BUNDLE)"
 
@@ -37,3 +37,7 @@ install: build
 	@rm -rf $(INSTALL_DIR)/$(APP_NAME).app
 	@cp -R $(APP_BUNDLE) $(INSTALL_DIR)/
 	@echo "Installation complete: $(INSTALL_DIR)/$(APP_NAME).app"
+
+test:
+	@echo "Running tests..."
+	@swift test

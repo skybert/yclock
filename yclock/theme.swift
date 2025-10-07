@@ -1,6 +1,6 @@
 import Cocoa
 
-struct Config {
+public struct Config {
     let background: NSColor
     let foreground: NSColor
     let secondHand: NSColor
@@ -8,7 +8,7 @@ struct Config {
     let width: CGFloat
     let height: CGFloat
 
-    static let `default` = Config(
+    public static let `default` = Config(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
         foreground: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
         secondHand: NSColor(red: 237/255, green: 135/255, blue: 150/255, alpha: 1.0),
@@ -17,7 +17,7 @@ struct Config {
         height: 164
     )
 
-    static func load() -> Config {
+    public static func load() -> Config {
         let homeDir = FileManager.default.homeDirectoryForCurrentUser
 
         // Check ~/.yclock.conf first, then ~/.config, then XDG_CONFIG_HOME
@@ -99,7 +99,7 @@ struct Config {
         )
     }
 
-    static func parseColor(_ value: String) -> NSColor? {
+    public static func parseColor(_ value: String) -> NSColor? {
         let hex = value.hasPrefix("#") ? String(value.dropFirst()) : value
 
         guard hex.count == 6 else { return nil }
@@ -115,12 +115,18 @@ struct Config {
     }
 }
 
-struct Theme {
+public struct Theme {
     let background: NSColor
     let foreground: NSColor
     let secondHand: NSColor
 
-    static let catppuccinMacchiato = Theme(
+    public init(background: NSColor, foreground: NSColor, secondHand: NSColor) {
+        self.background = background
+        self.foreground = foreground
+        self.secondHand = secondHand
+    }
+
+    public static let catppuccinMacchiato = Theme(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
         foreground: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
         secondHand: NSColor(red: 237/255, green: 135/255, blue: 150/255, alpha: 1.0)

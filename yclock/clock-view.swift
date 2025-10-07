@@ -1,12 +1,12 @@
 import Cocoa
 
-class ClockView: NSView {
+public class ClockView: NSView {
     var timer: Timer?
     var isDigital: Bool = false
     var showSeconds: Bool = false
-    var theme: Theme = Theme.catppuccinMacchiato
+    public var theme: Theme = Theme.catppuccinMacchiato
 
-    override init(frame: NSRect) {
+    public override init(frame: NSRect) {
         super.init(frame: frame)
         setupTimer()
         self.wantsLayer = true
@@ -25,11 +25,11 @@ class ClockView: NSView {
         }
     }
 
-    override var isFlipped: Bool {
+    public override var isFlipped: Bool {
         return true
     }
 
-    override func draw(_ dirtyRect: NSRect) {
+    public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
 
         theme.background.setFill()
@@ -152,12 +152,12 @@ class ClockView: NSView {
         NSBezierPath(ovalIn: dotRect).fill()
     }
 
-    func toggleClockMode() {
+    public func toggleClockMode() {
         isDigital.toggle()
         needsDisplay = true
     }
 
-    func toggleSeconds() {
+    public func toggleSeconds() {
         showSeconds.toggle()
         needsDisplay = true
     }

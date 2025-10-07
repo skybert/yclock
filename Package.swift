@@ -8,14 +8,37 @@ let package = Package(
     platforms: [
         .macOS(.v11)
     ],
+    products: [
+        .executable(name: "yclock", targets: ["yclock"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-testing.git", from: "0.10.0"),
+    ],
     targets: [
-        .executableTarget(
-            name: "yclock",
+        .target(
+            name: "yClockLib",
             path: "yclock",
-            exclude: ["info.plist"],
+            exclude: ["info.plist", "main.swift"],
             linkerSettings: [
                 .linkedFramework("Cocoa")
             ]
+        ),
+        .executableTarget(
+            name: "yclock",
+            dependencies: ["yClockLib"],
+            path: "yclock",
+            sources: ["main.swift"],
+            linkerSettings: [
+                .linkedFramework("Cocoa")
+            ]
+        ),
+        .testTarget(
+            name: "yClockTests",
+            dependencies: [
+                "yClockLib",
+                .product(name: "Testing", package: "swift-testing")
+            ],
+            path: "tests"
         ),
     ]
 )
