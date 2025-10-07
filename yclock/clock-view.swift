@@ -9,6 +9,9 @@ class ClockView: NSView {
     override init(frame: NSRect) {
         super.init(frame: frame)
         setupTimer()
+        self.wantsLayer = true
+        self.layer?.cornerRadius = 12
+        self.layer?.masksToBounds = true
     }
     
     required init?(coder: NSCoder) {
