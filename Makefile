@@ -1,4 +1,4 @@
-.PHONY: build run clean
+.PHONY: build run clean install
 
 APP_NAME = yclock
 BUILD_DIR = build
@@ -7,6 +7,7 @@ CONTENTS_DIR = $(APP_BUNDLE)/Contents
 MACOS_DIR = $(CONTENTS_DIR)/MacOS
 RESOURCES_DIR = $(CONTENTS_DIR)/Resources
 EXECUTABLE = $(MACOS_DIR)/$(APP_NAME)
+INSTALL_DIR = /Applications
 
 SOURCES = yclock/main.swift yclock/app-delegate.swift yclock/clock-view.swift
 SWIFT_FLAGS = -O
@@ -31,3 +32,9 @@ clean:
 	@echo "Cleaning build directory..."
 	@rm -rf $(BUILD_DIR)
 	@echo "Clean complete"
+
+install: build
+	@echo "Installing $(APP_NAME) to $(INSTALL_DIR)..."
+	@rm -rf $(INSTALL_DIR)/$(APP_NAME).app
+	@cp -R $(APP_BUNDLE) $(INSTALL_DIR)/
+	@echo "Installation complete: $(INSTALL_DIR)/$(APP_NAME).app"

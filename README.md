@@ -15,6 +15,13 @@ Build the application:
 $ make build
 ```
 
+## Installing
+
+Install the application to /Applications:
+```bash
+$ make install
+```
+
 ## Running
 
 Run the application:
