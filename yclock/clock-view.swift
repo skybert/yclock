@@ -59,7 +59,7 @@ public class ClockView: NSView {
 
         let fontSize = min(bounds.width, bounds.height) * 0.3
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .medium),
+            .font: NSFont(name: "Comic Sans MS", size: fontSize) ?? NSFont.systemFont(ofSize: fontSize),
             .foregroundColor: theme.foreground,
             .paragraphStyle: paragraphStyle
         ]
@@ -81,7 +81,7 @@ public class ClockView: NSView {
 
         let dateFontSize = fontSize * 0.4
         let dateAttributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: dateFontSize, weight: .regular),
+            .font: NSFont(name: "Comic Sans MS", size: dateFontSize) ?? NSFont.systemFont(ofSize: dateFontSize),
             .foregroundColor: theme.foreground,
             .paragraphStyle: paragraphStyle
         ]
