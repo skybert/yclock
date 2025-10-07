@@ -25,34 +25,6 @@ from X11 that you're used to on Linux and the BSDs.
   alt="yclock digital"
 />
 
-## Building
-
-Build the application:
-```bash
-$ make build
-```
-
-## Installing
-
-Install the application to /Applications:
-```bash
-$ make install
-```
-
-## Running
-
-Run the application:
-```bash
-$ make run
-```
-
-## Cleaning
-
-Clean build artifacts:
-```bash
-$ make clean
-```
-
 ## Configuration
 
 `yclock` can be themed by creating a configuration file. The app looks
@@ -76,6 +48,27 @@ second_hand = #ed8796
 
 - macOS 10.15 or later
 - Xcode Command Line Tools (for swiftc compiler)
+
+## Building
+
+Build the application:
+```bash
+$ make clean && make build
+```
+
+## Running
+
+Run the application:
+```bash
+$ make run
+```
+
+## Installing
+
+Install the application to /Applications:
+```bash
+$ make install
+```
 
 ## License
 
