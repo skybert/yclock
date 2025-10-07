@@ -1,4 +1,4 @@
-name: Build and Release macOS Binary
+name: build-and-release-macos-binary
 
 on:
   push:
