@@ -12,29 +12,29 @@ A simple analog clock application for macOS, inspired by xclock on Linux.
 
 Build the application:
 ```bash
-make build
+$ make build
 ```
 
 ## Running
 
 Run the application:
 ```bash
-make run
-```
-
-Or build and run in one step:
-```bash
-make
+$ make run
 ```
 
 ## Cleaning
 
 Clean build artifacts:
 ```bash
-make clean
+$ make clean
 ```
 
 ## Requirements
 
 - macOS 10.15 or later
 - Xcode Command Line Tools (for swiftc compiler)
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the
+[LICENSE](LICENSE) file for details.

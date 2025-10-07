@@ -2,6 +2,8 @@ import Cocoa
 
 class ClockView: NSView {
     var timer: Timer?
+    var isDigital: Bool = false
+    var showSeconds: Bool = true
     
     override init(frame: NSRect) {
         super.init(frame: frame)
@@ -26,9 +28,49 @@ class ClockView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         
-        NSColor.white.setFill()
+        NSColor.white.withAlphaComponent(0.7).setFill()
         bounds.fill()
         
+        // Get current time
+        let date = Date()
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: date)
+        let minute = calendar.component(.minute, from: date)
+        let second = calendar.component(.second, from: date)
+        
+        if isDigital {
+            drawDigitalClock(hour: hour, minute: minute, second: second)
+        } else {
+            drawAnalogClock(hour: hour, minute: minute, second: second)
+        }
+    }
+    
+    func drawDigitalClock(hour: Int, minute: Int, second: Int) {
+        let timeString = showSeconds ? 
+            String(format: "%02d:%02d:%02d", hour, minute, second) :
+            String(format: "%02d:%02d", hour, minute)
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        
+        let fontSize = min(bounds.width, bounds.height) * 0.2
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .medium),
+            .foregroundColor: NSColor.black,
+            .paragraphStyle: paragraphStyle
+        ]
+        
+        let attributedString = NSAttributedString(string: timeString, attributes: attributes)
+        let textSize = attributedString.size()
+        let textRect = NSRect(x: (bounds.width - textSize.width) / 2,
+                             y: (bounds.height - textSize.height) / 2,
+                             width: textSize.width,
+                             height: textSize.height)
+        
+        attributedString.draw(in: textRect)
+    }
+    
+    func drawAnalogClock(hour: Int, minute: Int, second: Int) {
         let center = NSPoint(x: bounds.midX, y: bounds.midY)
         let radius = min(bounds.width, bounds.height) / 2 - 10
         
@@ -42,8 +84,8 @@ class ClockView: NSView {
         circlePath.stroke()
         
         // Draw hour markers
-        for hour in 0..<12 {
-            let angle = CGFloat(hour) * .pi / 6 - .pi / 2
+        for h in 0..<12 {
+            let angle = CGFloat(h) * .pi / 6 - .pi / 2
             let innerRadius = radius * 0.85
             let outerRadius = radius * 0.95
             
@@ -59,13 +101,6 @@ class ClockView: NSView {
             markerPath.stroke()
         }
         
-        // Get current time
-        let date = Date()
-        let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: date)
-        let minute = calendar.component(.minute, from: date)
-        let second = calendar.component(.second, from: date)
-        
         // Draw hour hand
         let hourAngle = (CGFloat(hour % 12) + CGFloat(minute) / 60) * .pi / 6 - .pi / 2
         drawHand(at: center, angle: hourAngle, length: radius * 0.5, width: 6)
@@ -75,9 +110,11 @@ class ClockView: NSView {
         drawHand(at: center, angle: minuteAngle, length: radius * 0.7, width: 4)
         
         // Draw second hand
-        let secondAngle = CGFloat(second) * .pi / 30 - .pi / 2
-        NSColor.red.setStroke()
-        drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: 2)
+        if showSeconds {
+            let secondAngle = CGFloat(second) * .pi / 30 - .pi / 2
+            NSColor.red.setStroke()
+            drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: 2)
+        }
         
         // Draw center dot
         NSColor.black.setFill()
@@ -87,6 +124,16 @@ class ClockView: NSView {
                             width: dotRadius * 2,
                             height: dotRadius * 2)
         NSBezierPath(ovalIn: dotRect).fill()
+    }
+    
+    func toggleClockMode() {
+        isDigital.toggle()
+        needsDisplay = true
+    }
+    
+    func toggleSeconds() {
+        showSeconds.toggle()
+        needsDisplay = true
     }
     
     func drawHand(at center: NSPoint, angle: CGFloat, length: CGFloat, width: CGFloat) {

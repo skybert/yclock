@@ -15,6 +15,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.title = "yclock"
         window.center()
         window.level = .floating
+        window.isOpaque = false
+        window.alphaValue = 0.85
+        window.backgroundColor = NSColor.clear
         
         clockView = ClockView(frame: window.contentView!.bounds)
         clockView.autoresizingMask = [.width, .height]
@@ -31,11 +34,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         mainMenu.addItem(appMenuItem)
         
         let appMenu = NSMenu()
+        let toggleMenuItem = NSMenuItem(title: "Toggle Digital/Analog", action: #selector(toggleClockMode), keyEquivalent: "d")
+        appMenu.addItem(toggleMenuItem)
+        let toggleSecondsMenuItem = NSMenuItem(title: "Toggle Seconds", action: #selector(toggleSeconds), keyEquivalent: "s")
+        appMenu.addItem(toggleSecondsMenuItem)
+        appMenu.addItem(NSMenuItem.separator())
         let quitMenuItem = NSMenuItem(title: "Quit yclock", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenu.addItem(quitMenuItem)
         
         appMenuItem.submenu = appMenu
         NSApp.mainMenu = mainMenu
+    }
+    
+    @objc func toggleClockMode() {
+        clockView.toggleClockMode()
+    }
+    
+    @objc func toggleSeconds() {
+        clockView.toggleSeconds()
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
