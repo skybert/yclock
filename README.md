@@ -13,6 +13,7 @@ from X11 that you're used to on Linux and the BSDs.
 - Draggable anywhere on the clock face
 - Translucent window
 - Themeable via configuration file
+- Command line options for startup mode
 
 ## Screenshots
 <img
@@ -24,6 +25,23 @@ from X11 that you're used to on Linux and the BSDs.
   src="doc/yclock-digital.png"
   alt="yclock digital"
 />
+
+## Usage
+
+```bash
+yclock [OPTIONS]
+
+Options:
+  --digital         Start in digital mode
+  --analog          Start in analog mode (default)
+  --analogue        Same as --analog
+  --seconds         Show seconds hand/display
+  --help            Show this help message
+
+Examples:
+  yclock --digital --seconds
+  yclock --analog
+```
 
 ## Configuration
 
@@ -42,11 +60,18 @@ Example configuration:
 background = #24273a
 foreground = #cad3f5
 second_hand = #ed8796
+
+# Clock mode (analog or digital)
+mode = analog
+
+# Window dimensions
+width = 164
+height = 164
 ```
 
 ## Requirements
 
-- macOS 10.15 or later
+- macOS 11.0 or later
 - Xcode Command Line Tools (for swiftc compiler)
 
 ## Building
@@ -63,12 +88,43 @@ Run the application:
 $ make run
 ```
 
+Or run directly with options:
+```bash
+$ ./build/yclock.app/Contents/MacOS/yclock --digital --seconds
+```
+
+## Testing
+
+Run the test suite:
+```bash
+$ make test
+```
+
+Or using Swift Package Manager:
+```bash
+$ swift test
+```
+
 ## Installing
 
 Install the application to /Applications:
 ```bash
 $ make install
 ```
+
+## Development
+
+The project uses Swift Package Manager for dependency management and testing.
+The codebase is split into:
+- `yClockLib` - Core clock functionality (testable library)
+- `yclock` - Main executable and command line interface
+
+Available make targets:
+- `make build` - Build the application
+- `make run` - Build and run the application
+- `make test` - Run tests
+- `make clean` - Clean build artifacts
+- `make install` - Install to /Applications
 
 ## License
 

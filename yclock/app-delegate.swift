@@ -1,8 +1,24 @@
 import Cocoa
 
+public struct CommandLineOptions {
+    public var isDigital: Bool?
+    public var showSeconds: Bool?
+    
+    public init(isDigital: Bool? = nil, showSeconds: Bool? = nil) {
+        self.isDigital = isDigital
+        self.showSeconds = showSeconds
+    }
+}
+
 public class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     var clockView: ClockView!
+    var options: CommandLineOptions
+    
+    public init(options: CommandLineOptions = CommandLineOptions()) {
+        self.options = options
+        super.init()
+    }
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         let config = Config.load()
@@ -25,7 +41,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         clockView = ClockView(frame: window.contentView!.bounds)
         clockView.autoresizingMask = [.width, .height]
-        clockView.isDigital = config.isDigital
+        
+        // Use command line options if provided, otherwise fall back to config
+        clockView.isDigital = options.isDigital ?? config.isDigital
+        clockView.showSeconds = options.showSeconds ?? false
+        
         clockView.theme = Theme(
             background: config.background,
             foreground: config.foreground,
