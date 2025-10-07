@@ -5,7 +5,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var clockView: ClockView!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let windowRect = NSRect(x: 100, y: 100, width: 164, height: 164)
+        let windowRect = NSRect(x: 100, y: 100, width: 240, height: 100)
 
         NSApp.setActivationPolicy(.accessory)
         window = NSWindow(contentRect: windowRect,
@@ -21,15 +21,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.alphaValue = 0.85
         window.backgroundColor = NSColor.clear
         window.isMovableByWindowBackground = true
-        
+
         clockView = ClockView(frame: window.contentView!.bounds)
         clockView.autoresizingMask = [.width, .height]
         window.contentView = clockView
         window.makeKeyAndOrderFront(nil)
-        
+
         NSApp.activate(ignoringOtherApps: true)
         setupMenu()
-        
+
         // Listen for wake from sleep notifications
         NSWorkspace.shared.notificationCenter.addObserver(
             self,
@@ -38,16 +38,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil
         )
     }
-    
+
     @objc func handleWakeFromSleep() {
         clockView.needsDisplay = true
     }
-    
+
     func setupMenu() {
         let mainMenu = NSMenu()
         let appMenuItem = NSMenuItem()
         mainMenu.addItem(appMenuItem)
-        
+
         let appMenu = NSMenu()
         let toggleMenuItem = NSMenuItem(title: "Toggle Digital/Analog", action: #selector(toggleClockMode), keyEquivalent: "d")
         appMenu.addItem(toggleMenuItem)
@@ -56,19 +56,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appMenu.addItem(NSMenuItem.separator())
         let quitMenuItem = NSMenuItem(title: "Quit yclock", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenu.addItem(quitMenuItem)
-        
+
         appMenuItem.submenu = appMenu
         NSApp.mainMenu = mainMenu
     }
-    
+
     @objc func toggleClockMode() {
         clockView.toggleClockMode()
     }
-    
+
     @objc func toggleSeconds() {
         clockView.toggleSeconds()
     }
-    
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
     }
