@@ -5,7 +5,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var clockView: ClockView!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let windowRect = NSRect(x: 100, y: 100, width: 240, height: 100)
+        let config = Config.load()
+        let windowRect = NSRect(x: 100, y: 100, width: config.width, height: config.height)
 
         NSApp.setActivationPolicy(.accessory)
         window = NSWindow(contentRect: windowRect,
@@ -24,6 +25,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         clockView = ClockView(frame: window.contentView!.bounds)
         clockView.autoresizingMask = [.width, .height]
+        clockView.isDigital = config.isDigital
+        clockView.theme = Theme(
+            background: config.background,
+            foreground: config.foreground,
+            secondHand: config.secondHand
+        )
         window.contentView = clockView
         window.makeKeyAndOrderFront(nil)
 

@@ -2,9 +2,9 @@ import Cocoa
 
 class ClockView: NSView {
     var timer: Timer?
-    var isDigital: Bool = true
+    var isDigital: Bool = false
     var showSeconds: Bool = false
-    var theme: Theme = Theme.load()
+    var theme: Theme = Theme.catppuccinMacchiato
 
     override init(frame: NSRect) {
         super.init(frame: frame)
