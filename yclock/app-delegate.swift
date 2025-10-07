@@ -27,6 +27,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         NSApp.activate(ignoringOtherApps: true)
         setupMenu()
+        
+        // Listen for wake from sleep notifications
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(handleWakeFromSleep),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
+        )
+    }
+    
+    @objc func handleWakeFromSleep() {
+        clockView.needsDisplay = true
     }
     
     func setupMenu() {
