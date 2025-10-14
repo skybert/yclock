@@ -4,7 +4,7 @@ public struct CommandLineOptions {
     public var isDigital: Bool?
     public var showSeconds: Bool?
     public var fontName: String?
-    
+
     public init(isDigital: Bool? = nil, showSeconds: Bool? = nil, fontName: String? = nil) {
         self.isDigital = isDigital
         self.showSeconds = showSeconds
@@ -16,7 +16,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     var clockView: ClockView!
     var options: CommandLineOptions
-    
+    var savedFrame: NSRect?
+    var isMaximized = false
+
     public init(options: CommandLineOptions = CommandLineOptions()) {
         self.options = options
         super.init()
@@ -62,12 +64,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         clockView = ClockView(frame: window.contentView!.bounds)
         clockView.autoresizingMask = [.width, .height]
-        
+
         // Use command line options if provided, otherwise fall back to config
         clockView.isDigital = options.isDigital ?? config.isDigital
         clockView.showSeconds = options.showSeconds ?? false
         clockView.fontName = options.fontName ?? config.fontName
-        
+
         clockView.theme = Theme(
             background: config.background,
             foreground: config.foreground,
@@ -102,6 +104,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         appMenu.addItem(toggleMenuItem)
         let toggleSecondsMenuItem = NSMenuItem(title: "Toggle Seconds", action: #selector(toggleSeconds), keyEquivalent: "s")
         appMenu.addItem(toggleSecondsMenuItem)
+        let maximizeMenuItem = NSMenuItem(title: "Maximize Clock", action: #selector(toggleMaximized), keyEquivalent: "f")
+        appMenu.addItem(maximizeMenuItem)
         appMenu.addItem(NSMenuItem.separator())
         let quitMenuItem = NSMenuItem(title: "Quit yclock", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenu.addItem(quitMenuItem)
@@ -118,6 +122,27 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         clockView.toggleSeconds()
     }
 
+    @objc func toggleMaximized() {
+        if isMaximized {
+            // Restore original size
+            if let saved = savedFrame {
+                window.setFrame(saved, display: true, animate: true)
+                isMaximized = false
+            }
+        } else {
+            // Save current frame and maximize
+            savedFrame = window.frame
+
+            guard let screen = window.screen else { return }
+
+            // Use the entire visible frame (excludes menu bar and dock)
+            let screenFrame = screen.visibleFrame
+
+            window.setFrame(screenFrame, display: true, animate: true)
+            isMaximized = true
+        }
+    }
+
     public func applicationWillTerminate(_ notification: Notification) {
         // Save window position before closing
         let origin = window.frame.origin
@@ -128,4 +153,3 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 }
-
