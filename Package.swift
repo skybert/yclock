@@ -18,7 +18,7 @@ let package = Package(
         .target(
             name: "yClockLib",
             path: "yclock",
-            exclude: ["info.plist", "main.swift"],
+            exclude: ["info.plist", "main.swift", "yclock.png", "yclock.icns"],
             sources: ["app-delegate.swift", "clock-view.swift", "theme.swift", "command-line.swift"],
             linkerSettings: [
                 .linkedFramework("Cocoa")
@@ -28,7 +28,7 @@ let package = Package(
             name: "yclock",
             dependencies: ["yClockLib"],
             path: "yclock",
-            exclude: ["info.plist", "app-delegate.swift", "clock-view.swift", "theme.swift", "command-line.swift"],
+            exclude: ["info.plist", "app-delegate.swift", "clock-view.swift", "theme.swift", "command-line.swift", "yclock.png", "yclock.icns"],
             sources: ["main.swift"],
             linkerSettings: [
                 .linkedFramework("Cocoa")

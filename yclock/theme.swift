@@ -10,6 +10,7 @@ public struct Config {
     let fontName: String?
     let windowX: CGFloat?
     let windowY: CGFloat?
+    let showInDock: Bool
 
     public static let `default` = Config(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
@@ -20,7 +21,8 @@ public struct Config {
         height: 164,
         fontName: nil,
         windowX: nil,
-        windowY: nil
+        windowY: nil,
+        showInDock: false
     )
 
     public static func load() -> Config {
@@ -63,6 +65,7 @@ public struct Config {
         var fontName: String?
         var windowX: CGFloat?
         var windowY: CGFloat?
+        var showInDock: Bool?
 
         for line in contents.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -103,6 +106,8 @@ public struct Config {
                 if let y = Double(value) {
                     windowY = CGFloat(y)
                 }
+            case "show_in_dock":
+                showInDock = (value.lowercased() == "true" || value == "1")
             default:
                 break
             }
@@ -117,7 +122,8 @@ public struct Config {
             height: height ?? Config.default.height,
             fontName: fontName ?? Config.default.fontName,
             windowX: windowX,
-            windowY: windowY
+            windowY: windowY,
+            showInDock: showInDock ?? Config.default.showInDock
         )
     }
 

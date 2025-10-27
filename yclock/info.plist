@@ -24,5 +24,7 @@
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>CFBundleIconFile</key>
+    <string>yclock</string>
   </dict>
 </plist>

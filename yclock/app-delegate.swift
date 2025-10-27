@@ -4,11 +4,13 @@ public struct CommandLineOptions {
     public var isDigital: Bool?
     public var showSeconds: Bool?
     public var fontName: String?
+    public var showInDock: Bool?
 
-    public init(isDigital: Bool? = nil, showSeconds: Bool? = nil, fontName: String? = nil) {
+    public init(isDigital: Bool? = nil, showSeconds: Bool? = nil, fontName: String? = nil, showInDock: Bool? = nil) {
         self.isDigital = isDigital
         self.showSeconds = showSeconds
         self.fontName = fontName
+        self.showInDock = showInDock
     }
 }
 
@@ -28,7 +30,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         let config = Config.load()
         let windowRect = NSRect(x: 100, y: 100, width: config.width, height: config.height)
 
-        NSApp.setActivationPolicy(.accessory)
+        // Use command line option if provided, otherwise fall back to config
+        let showInDock = options.showInDock ?? config.showInDock
+        NSApp.setActivationPolicy(showInDock ? .regular : .accessory)
         window = NSWindow(contentRect: windowRect,
                          styleMask: [.titled, .fullSizeContentView],
                          backing: .buffered,

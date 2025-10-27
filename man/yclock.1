@@ -23,6 +23,9 @@ Same as \fB\-\-analog\fR (British spelling)
 .B \-\-seconds
 Show seconds hand in analog mode or seconds in digital mode
 .TP
+.B \-\-show-in-dock
+Show application in Dock and Cmd+Tab switcher. By default, the app runs as an accessory and does not appear in the Dock or application switcher.
+.TP
 .B \-\-font-name \fINAME\fR
 Specify font name for digital clock. If the font name contains spaces, enclose it in quotes.
 Examples: Menlo, Monaco, "Courier New", Helvetica
@@ -61,6 +64,9 @@ Window height in pixels (default: 164)
 .TP
 .B font = \fINAME\fR
 Font name for digital clock (optional). Examples: Menlo, Monaco, Courier
+.TP
+.B show_in_dock = \fItrue|false\fR
+Show application in Dock and Cmd+Tab switcher (default: false). When false, the app runs as an accessory and doesn't appear in the Dock or application switcher.
 .SH KEYBOARD SHORTCUTS
 When the clock window is active:
 .TP
@@ -88,6 +94,9 @@ Use a custom font for digital clock:
 .TP
 Use a font with spaces in the name:
 .B yclock \-\-font-name "Courier New" \-\-seconds
+.TP
+Show the app in Dock and Cmd+Tab:
+.B yclock \-\-show-in-dock
 .SH FILES
 .TP
 .I ~/.yclock.conf

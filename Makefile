@@ -22,6 +22,7 @@ $(EXECUTABLE): $(SOURCES) yclock/info.plist
 	@swift build -c release
 	@cp .build/release/$(APP_NAME) $(MACOS_DIR)/$(APP_NAME)
 	@cp yclock/info.plist $(CONTENTS_DIR)/Info.plist
+	@cp yclock/yclock.icns $(RESOURCES_DIR)/yclock.icns
 	@echo "Build complete: $(APP_BUNDLE)"
 
 run: build

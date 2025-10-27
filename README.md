@@ -1,5 +1,7 @@
 # yclock
 
+<img src="yclock/yclock.png" alt="yclock icon" width="128"/>
+
 A simple analog clock application for macOS, inspired by
 [xclock](https://www.x.org/releases/X11R7.6/doc/man/man1/xclock.1.xhtml)
 from X11 that you're used to on Linux and the BSDs.
@@ -36,6 +38,7 @@ Options:
   --analog          Start in analog mode (default)
   --analogue        Same as --analog
   --seconds         Show seconds hand/display
+  --show-in-dock    Show app in Dock and Cmd+Tab switcher
   --font-name NAME  Specify font name for digital clock
   --help            Show this help message
 
@@ -44,6 +47,7 @@ Examples:
   yclock --analog
   yclock --digital --font-name Menlo
   yclock --font-name "Courier New" --seconds
+  yclock --show-in-dock
 ```
 
 ## Configuration
@@ -74,6 +78,10 @@ height = 164
 # Font name for digital clock (optional)
 # Examples: Menlo, Monaco, Courier, Helvetica, Arial
 font = Menlo
+
+# Show app in Dock and Cmd+Tab switcher (default: false)
+# When false, app runs as an accessory and doesn't appear in Dock or Cmd+Tab
+# show_in_dock = false
 ```
 
 ## Requirements
