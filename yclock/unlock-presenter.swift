@@ -116,6 +116,17 @@ enum FollowDrag {
     }
 }
 
+enum RoundedHitTest {
+    static func contains(_ p: CGPoint, in rect: CGRect, radius: CGFloat) -> Bool {
+        guard rect.contains(p) else { return false }
+        let r = max(0, min(radius, min(rect.width, rect.height) / 2))
+        let cx = min(max(p.x, rect.minX + r), rect.maxX - r)
+        let cy = min(max(p.y, rect.minY + r), rect.maxY - r)
+        let dx = p.x - cx, dy = p.y - cy
+        return dx * dx + dy * dy <= r * r
+    }
+}
+
 final class ClickThroughPresenter: UnlockPresenter {
     private let window: NSWindow
     private let clockView: ClockView
@@ -188,7 +199,9 @@ final class ClickThroughPresenter: UnlockPresenter {
     }
 
     private func tick() {
-        let mouseIn = window.frame.contains(NSEvent.mouseLocation)
+        let radius = ClockView.effectiveCornerRadius(
+            clockView.geometry.cornerRadius, factor: clockView.renderFactor, size: clockView.bounds.size)
+        let mouseIn = RoundedHitTest.contains(NSEvent.mouseLocation, in: window.frame, radius: radius)
         let match = config.unlockModifiers.isSatisfied(by: NSEvent.modifierFlags)
         handle(.tick(mouseIn: mouseIn, modifiersMatch: match))
         updateFollow(mouseIn: mouseIn, match: match)
