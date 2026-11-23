@@ -13,7 +13,7 @@ from X11 that you're used to on Linux and the BSDs.
 - Real-time updates every second
 - Clean, minimal interface with no window chrome
 - Draggable anywhere on the clock face
-- Translucent window
+- Translucent window that floats above other windows and is visible on all desktops
 - Themeable via configuration file
 - Command line options for startup mode
 

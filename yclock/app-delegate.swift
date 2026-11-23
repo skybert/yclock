@@ -61,6 +61,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         window.level = .floating
+        window.collectionBehavior.insert(.canJoinAllSpaces)
         window.isOpaque = false
         window.alphaValue = config.opacity
         switch config.windowShadow {
