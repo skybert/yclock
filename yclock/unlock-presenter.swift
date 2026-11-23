@@ -66,6 +66,26 @@ enum ActivationPolicies {
     }
 }
 
+enum PresenterPhase { case idle, unlocking, unlocked }
+
+enum UnlockedDimming {
+    struct Appearance: Equatable {
+        var windowAlpha: CGFloat
+        var contentAlpha: CGFloat
+        var opaqueBackground: Bool
+    }
+
+    static func appearance(phase: PresenterPhase, isKey: Bool, configOpacity: CGFloat, backgroundAlpha: CGFloat) -> Appearance {
+        switch phase {
+        case .idle: return Appearance(windowAlpha: configOpacity, contentAlpha: 1, opaqueBackground: false)
+        case .unlocking: return Appearance(windowAlpha: max(configOpacity, 0.2), contentAlpha: 1, opaqueBackground: false)
+        case .unlocked:
+            if isKey { return Appearance(windowAlpha: 1, contentAlpha: 1, opaqueBackground: backgroundAlpha > 0) }
+            return Appearance(windowAlpha: 1, contentAlpha: max(configOpacity / 2, 0.2), opaqueBackground: false)
+        }
+    }
+}
+
 final class ClickThroughPresenter: UnlockPresenter {
     private let window: NSWindow
     private let clockView: ClockView
@@ -80,6 +100,8 @@ final class ClickThroughPresenter: UnlockPresenter {
     private let idlePolicy: NSApplication.ActivationPolicy
     private let unlockedPolicy: NSApplication.ActivationPolicy
     private var switchedToRegular = false
+    private var phase = PresenterPhase.idle
+    private var keyObservers: [NSObjectProtocol] = []
 
     init(window: NSWindow, clockView: ClockView, config: Config, showInDock: Bool = false) {
         useAppSwitcher = ActivationPolicies.switchesOnUnlock(
@@ -94,6 +116,11 @@ final class ClickThroughPresenter: UnlockPresenter {
         clockView.unlockRingWidth = config.unlockRingWidth
         controller = UnlockController(clickThrough: true, unlockDuration: config.unlockHoverDelay, presenter: self)
 
+        for name in [NSWindow.didBecomeKeyNotification, NSWindow.didResignKeyNotification] {
+            keyObservers.append(NotificationCenter.default.addObserver(
+                forName: name, object: window, queue: .main) { [weak self] _ in self?.applyAppearance() })
+        }
+
         // Polling instead of global event monitors, which require Accessibility permission.
         slowTimer = scheduled(interval: 1) { [weak self] in self?.tick() }
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
@@ -107,6 +134,16 @@ final class ClickThroughPresenter: UnlockPresenter {
         fastTimer?.invalidate()
         animationTimer?.invalidate()
         if let monitor = monitor { NSEvent.removeMonitor(monitor) }
+        keyObservers.forEach { NotificationCenter.default.removeObserver($0) }
+    }
+
+    private func applyAppearance() {
+        let a = UnlockedDimming.appearance(
+            phase: phase, isKey: window.isKeyWindow, configOpacity: CGFloat(config.opacity),
+            backgroundAlpha: config.background.alphaComponent)
+        window.alphaValue = a.windowAlpha
+        clockView.contentAlpha = a.contentAlpha
+        clockView.opaqueBackground = a.opaqueBackground
     }
 
     func handle(_ event: UnlockEvent) {
@@ -150,19 +187,21 @@ final class ClickThroughPresenter: UnlockPresenter {
 
     func showIdle() {
         cancelAnimation()
+        phase = .idle
+        applyAppearance()
         if switchedToRegular {
             switchedToRegular = false
             NSApp.setActivationPolicy(idlePolicy)
             window.orderFrontRegardless()
         }
         clockView.hideRing()
-        window.alphaValue = config.opacity
         window.hasShadow = configuredShadow
         window.ignoresMouseEvents = true
     }
 
     func startUnlocking(duration: TimeInterval, id: Int) {
-        window.alphaValue = max(config.opacity, 0.2)
+        phase = .unlocking
+        applyAppearance()
         clockView.fillRing(color: config.unlockingColor, duration: duration)
         finish(after: duration, id: id)
     }
@@ -170,7 +209,8 @@ final class ClickThroughPresenter: UnlockPresenter {
     func showUnlocked(pulse: Bool) {
         cancelAnimation()
         clockView.showFullRing(color: config.unlockedColor)
-        window.alphaValue = 1
+        phase = .unlocked
+        applyAppearance()
         window.hasShadow = true
         window.ignoresMouseEvents = false
         if useAppSwitcher && !switchedToRegular {
@@ -184,6 +224,8 @@ final class ClickThroughPresenter: UnlockPresenter {
     }
 
     func startLocking(duration: TimeInterval, id: Int) {
+        phase = .unlocked
+        applyAppearance()
         clockView.eraseRing(color: config.unlockedColor, duration: duration)
         finish(after: duration, id: id)
     }

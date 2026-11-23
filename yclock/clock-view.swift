@@ -12,6 +12,8 @@ public class ClockView: NSView {
     }
 
     public var unlockRingWidth: CGFloat = Config.default.unlockRingWidth { didSet { updateRing() } }
+    var contentAlpha: CGFloat = 1 { didSet { if contentAlpha != oldValue { needsDisplay = true } } }
+    var opaqueBackground = false { didSet { if opaqueBackground != oldValue { needsDisplay = true } } }
     let ringLayer = CAShapeLayer()
     let flashLayer = CALayer()
 
@@ -155,8 +157,24 @@ public class ClockView: NSView {
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
 
-        theme.background.setFill()
-        bounds.fill()
+        guard let ctx = NSGraphicsContext.current?.cgContext else { return }
+        let dimmed = contentAlpha < 1
+        if dimmed {
+            ctx.saveGState()
+            ctx.setAlpha(contentAlpha)
+            ctx.beginTransparencyLayer(auxiliaryInfo: nil)
+        }
+        defer {
+            if dimmed {
+                ctx.endTransparencyLayer()
+                ctx.restoreGState()
+            }
+        }
+
+        let background = opaqueBackground && theme.background.alphaComponent > 0
+            ? theme.background.withAlphaComponent(1) : theme.background
+        background.setFill()
+        bounds.fill(using: dimmed ? .sourceOver : .copy)
 
         // Get current time
         let date = Date()
