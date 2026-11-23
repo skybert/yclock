@@ -11,6 +11,10 @@ public class ClockView: NSView {
         didSet { updateCornerRadius(); needsDisplay = true }
     }
 
+    public var unlockRingWidth: CGFloat = Config.default.unlockRingWidth { didSet { updateRing() } }
+    let ringLayer = CAShapeLayer()
+    let flashLayer = CALayer()
+
     var renderFactor: CGFloat {
         guard designSize.width > 0, designSize.height > 0 else { return 1 }
         return min(bounds.width / designSize.width, bounds.height / designSize.height)
@@ -21,7 +25,96 @@ public class ClockView: NSView {
         setupTimer()
         self.wantsLayer = true
         self.layer?.masksToBounds = true
+        setupOverlayLayers()
         updateCornerRadius()
+    }
+
+    private func setupOverlayLayers() {
+        ringLayer.fillColor = nil
+        ringLayer.lineCap = .butt
+        ringLayer.strokeEnd = 0
+        ringLayer.isHidden = true
+        flashLayer.backgroundColor = NSColor.white.cgColor
+        flashLayer.opacity = 0
+        for l in [ringLayer, flashLayer] { l.actions = ["bounds": NSNull(), "position": NSNull(), "path": NSNull(), "lineWidth": NSNull(), "strokeColor": NSNull(), "strokeStart": NSNull(), "strokeEnd": NSNull(), "opacity": NSNull(), "hidden": NSNull()] }
+        layer?.addSublayer(ringLayer)
+        layer?.addSublayer(flashLayer)
+    }
+
+    static func ringPath(size: CGSize, radius: CGFloat, flipped: Bool) -> CGPath {
+        let top: CGFloat = flipped ? 0 : size.height
+        let bottom: CGFloat = flipped ? size.height : 0
+        let tr = CGPoint(x: size.width, y: top), br = CGPoint(x: size.width, y: bottom)
+        let bl = CGPoint(x: 0, y: bottom), tl = CGPoint(x: 0, y: top)
+        let start = CGPoint(x: size.width / 2, y: top)
+        let path = CGMutablePath()
+        path.move(to: start)
+        path.addArc(tangent1End: tr, tangent2End: br, radius: radius)
+        path.addArc(tangent1End: br, tangent2End: bl, radius: radius)
+        path.addArc(tangent1End: bl, tangent2End: tl, radius: radius)
+        path.addArc(tangent1End: tl, tangent2End: start, radius: radius)
+        path.addLine(to: start)
+        return path
+    }
+
+    func updateRing() {
+        guard let layer = layer else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        let radius = Self.effectiveCornerRadius(geometry.cornerRadius, factor: renderFactor, size: bounds.size)
+        for l in [ringLayer, flashLayer] { l.frame = bounds }
+        ringLayer.path = Self.ringPath(size: bounds.size, radius: radius, flipped: layer.isGeometryFlipped)
+        ringLayer.lineWidth = max(unlockRingWidth * renderFactor, 2)
+        CATransaction.commit()
+    }
+
+    func hideRing() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        ringLayer.removeAnimation(forKey: "ring")
+        ringLayer.isHidden = true
+        ringLayer.strokeStart = 0
+        ringLayer.strokeEnd = 0
+        CATransaction.commit()
+    }
+
+    func showFullRing(color: NSColor) {
+        setRing(color: color, start: 0, end: 1, animating: nil, duration: 0)
+    }
+
+    func fillRing(color: NSColor, duration: TimeInterval) {
+        setRing(color: color, start: 0, end: 1, animating: "strokeEnd", duration: duration)
+    }
+
+    func eraseRing(color: NSColor, duration: TimeInterval) {
+        setRing(color: color, start: 1, end: 1, animating: "strokeStart", duration: duration)
+    }
+
+    private func setRing(color: NSColor, start: CGFloat, end: CGFloat, animating key: String?, duration: TimeInterval) {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        ringLayer.removeAnimation(forKey: "ring")
+        ringLayer.strokeColor = color.cgColor
+        ringLayer.strokeStart = start
+        ringLayer.strokeEnd = end
+        ringLayer.isHidden = false
+        if let key, duration > 0 {
+            let a = CABasicAnimation(keyPath: key)
+            a.fromValue = 0
+            a.toValue = 1
+            a.duration = duration
+            a.timingFunction = CAMediaTimingFunction(name: .linear)
+            ringLayer.add(a, forKey: "ring")
+        }
+        CATransaction.commit()
+    }
+
+    func flash() {
+        let a = CAKeyframeAnimation(keyPath: "opacity")
+        a.values = [0, 1, 0]
+        a.keyTimes = [0, 0.5, 1]
+        a.duration = 0.2
+        flashLayer.add(a, forKey: "flash")
     }
 
     static func effectiveCornerRadius(_ baseRadius: CGFloat, factor: CGFloat, size: NSSize) -> CGFloat {
@@ -30,6 +123,7 @@ public class ClockView: NSView {
 
     func updateCornerRadius() {
         layer?.cornerRadius = Self.effectiveCornerRadius(geometry.cornerRadius, factor: renderFactor, size: bounds.size)
+        updateRing()
         window?.invalidateShadow()
     }
 

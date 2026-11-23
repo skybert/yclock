@@ -540,3 +540,83 @@ struct ShowSecondsConfigTests {
         #expect(Config.parse("show_seconds = true\nshow_seconds = nope").showSeconds == false)
     }
 }
+
+@Suite("Click-through config")
+struct ClickThroughConfigTests {
+    @Test("Defaults")
+    func defaults() {
+        let c = Config.parse("")
+        #expect(c.clickThrough == false)
+        #expect(c.unlockHoverDelay == 2)
+        #expect(c.unlockModifiers == [.shift])
+        #expect(c.unlockRingWidth == 10)
+        #expect(c.unlockingColor == c.foreground)
+        #expect(c.unlockedColor == Config.parseColor("#c00000"))
+    }
+
+    @Test("click_through values")
+    func clickThrough() {
+        for v in ["true", "TRUE", "1"] { #expect(Config.parse("click_through = \(v)").clickThrough) }
+        for v in ["false", "0", "yes", "", "x"] { #expect(!Config.parse("click_through = \(v)").clickThrough) }
+    }
+
+    @Test("unlock_hover_delay")
+    func delay() {
+        #expect(Config.parse("unlock_hover_delay = 0.5").unlockHoverDelay == 0.5)
+        #expect(Config.parse("unlock_hover_delay = 0").unlockHoverDelay == 0)
+        #expect(Config.parse("unlock_hover_delay = -1").unlockHoverDelay == 2)
+        #expect(Config.parse("unlock_hover_delay = abc").unlockHoverDelay == 2)
+        #expect(Config.parse("unlock_hover_delay = inf").unlockHoverDelay == 2)
+    }
+
+    @Test("unlock_ring_width")
+    func ringWidth() {
+        #expect(Config.parse("unlock_ring_width = 4.5").unlockRingWidth == 4.5)
+        #expect(Config.parse("unlock_ring_width = 0").unlockRingWidth == 0)
+        #expect(Config.parse("unlock_ring_width = -2").unlockRingWidth == 10)
+        #expect(Config.parse("unlock_ring_width = x").unlockRingWidth == 10)
+    }
+
+    @Test("unlock_modifier")
+    func modifier() {
+        #expect(Config.parse("unlock_modifier = ctrl+shift").unlockModifiers == [.control, .shift])
+        #expect(Config.parse("unlock_modifier = none").unlockModifiers == [])
+        #expect(Config.parse("unlock_modifier =").unlockModifiers == [])
+        #expect(Config.parse("unlock_modifier = bogus").unlockModifiers == [.shift])
+    }
+
+    @Test("Colors ignore alpha and follow foreground")
+    func colors() {
+        let c = Config.parse("foreground = #112233\nunlocking_color = #00ff0080\nunlocked_color = #0000ff10")
+        #expect(c.unlockingColor == Config.parseColor("#00ff00"))
+        #expect(c.unlockedColor == Config.parseColor("#0000ff"))
+        let d = Config.parse("unlocking_color = bad\nforeground = #112233cc\nunlocked_color = bad")
+        #expect(d.unlockingColor == Config.parseColor("#112233"))
+        #expect(d.unlockedColor == Config.parseColor("#c00000"))
+    }
+
+    @Test("Modifier parsing")
+    func parseModifiers() {
+        #expect(ModifierSet.parse("cmd+option") == [.command, .option])
+        #expect(ModifierSet.parse("Command, ALT") == [.command, .option])
+        #expect(ModifierSet.parse("opt-ctrl-shift") == [.option, .control, .shift])
+        #expect(ModifierSet.parse("control shift cmd") == [.control, .shift, .command])
+        #expect(ModifierSet.parse("NONE") == [])
+        #expect(ModifierSet.parse("  ") == [])
+        #expect(ModifierSet.parse("cmd+foo") == nil)
+        #expect(ModifierSet.parse("none+cmd") == nil)
+    }
+
+    @Test("Modifier matching")
+    func matching() {
+        let co = ModifierSet([.command, .option])
+        #expect(co.isSatisfied(by: [.command, .option]))
+        #expect(co.isSatisfied(by: [.command, .option, .capsLock, .function, .numericPad]))
+        #expect(!co.isSatisfied(by: [.command]))
+        #expect(!co.isSatisfied(by: [.command, .option, .shift]))
+        #expect(!co.isSatisfied(by: []))
+        #expect(ModifierSet([]).isSatisfied(by: []))
+        #expect(ModifierSet([]).isSatisfied(by: [.command, .shift]))
+        #expect(ModifierSet([.shift]).isSatisfied(by: [.shift, .capsLock]))
+    }
+}

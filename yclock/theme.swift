@@ -24,6 +24,12 @@ public struct Config {
     let opacity: CGFloat
     let windowShadow: WindowShadow
     let geometry: ClockGeometry
+    let clickThrough: Bool
+    let unlockHoverDelay: TimeInterval
+    let unlockModifiers: ModifierSet
+    let unlockRingWidth: CGFloat
+    let unlockingColor: NSColor
+    let unlockedColor: NSColor
 
     public static let `default` = Config(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
@@ -44,7 +50,13 @@ public struct Config {
         showSeconds: false,
         opacity: 0.85,
         windowShadow: .default,
-        geometry: .default
+        geometry: .default,
+        clickThrough: false,
+        unlockHoverDelay: 2,
+        unlockModifiers: ModifierSet.defaultUnlock,
+        unlockRingWidth: 10,
+        unlockingColor: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
+        unlockedColor: NSColor(red: 0xc0 / 255, green: 0, blue: 0, alpha: 1.0)
     )
 
     public static func load() -> Config {
@@ -101,6 +113,12 @@ public struct Config {
         var opacity: CGFloat?
         var windowShadow = WindowShadow.default
         var geometry = ClockGeometry.default
+        var clickThrough: Bool?
+        var unlockHoverDelay: TimeInterval?
+        var unlockModifiers: ModifierSet?
+        var unlockRingWidth: CGFloat?
+        var unlockingColor: NSColor?
+        var unlockedColor: NSColor?
 
         for line in contents.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -189,6 +207,22 @@ public struct Config {
                 if let v = MarkStyle(rawValue: value.lowercased()) { geometry.markStyle = v }
             case "mark_inset":
                 if let v = parseNonNegative(value) { geometry.markInset = v }
+            case "click_through":
+                switch value.lowercased() {
+                case "true", "1": clickThrough = true
+                case "false", "0": clickThrough = false
+                default: clickThrough = nil
+                }
+            case "unlock_hover_delay":
+                unlockHoverDelay = parseNonNegative(value).map { TimeInterval($0) }
+            case "unlock_modifier":
+                unlockModifiers = ModifierSet.parse(value)
+            case "unlock_ring_width":
+                unlockRingWidth = parseNonNegative(value)
+            case "unlocking_color":
+                unlockingColor = parseColor(value)
+            case "unlocked_color":
+                unlockedColor = parseColor(value)
             default:
                 break
             }
@@ -216,7 +250,13 @@ public struct Config {
             showSeconds: showSeconds ?? Config.default.showSeconds,
             opacity: opacity ?? Config.default.opacity,
             windowShadow: windowShadow,
-            geometry: geometry
+            geometry: geometry,
+            clickThrough: clickThrough ?? Config.default.clickThrough,
+            unlockHoverDelay: unlockHoverDelay ?? Config.default.unlockHoverDelay,
+            unlockModifiers: unlockModifiers ?? Config.default.unlockModifiers,
+            unlockRingWidth: unlockRingWidth ?? Config.default.unlockRingWidth,
+            unlockingColor: (unlockingColor ?? resolvedForeground).withAlphaComponent(1),
+            unlockedColor: (unlockedColor ?? Config.default.unlockedColor).withAlphaComponent(1)
         )
     }
 

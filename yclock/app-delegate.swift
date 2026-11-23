@@ -22,6 +22,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     var options: CommandLineOptions
     var savedFrame: NSRect?
     var isMaximized = false
+    var unlockPresenter: ClickThroughPresenter?
 
     public init(options: CommandLineOptions = CommandLineOptions()) {
         self.options = options
@@ -96,6 +97,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         window.contentView = clockView
         window.makeKeyAndOrderFront(nil)
 
+        if config.clickThrough {
+            unlockPresenter = ClickThroughPresenter(window: window, clockView: clockView, config: config)
+        }
+
         NSApp.activate(ignoringOtherApps: true)
         setupMenu()
 
@@ -159,6 +164,19 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             window.setFrame(screenFrame, display: true, animate: true)
             isMaximized = true
         }
+    }
+
+    public func applicationDidBecomeActive(_ notification: Notification) {
+        unlockPresenter?.handle(.appActivated)
+    }
+
+    public func applicationDidResignActive(_ notification: Notification) {
+        unlockPresenter?.handle(.appDeactivated)
+    }
+
+    public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        unlockPresenter?.handle(.appActivated)
+        return true
     }
 
     public func applicationWillTerminate(_ notification: Notification) {

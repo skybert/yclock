@@ -15,6 +15,7 @@ from X11 that you're used to on Linux and the BSDs.
 - Draggable anywhere on the clock face
 - Translucent window that floats above other windows and is visible on all desktops
 - Themeable via configuration file
+- Optional click-through mode (`click_through = true`): the window ignores the mouse until you hover over it for a while (with ⇧ held by default) or activate the app
 - Command line options for startup mode
 
 ## Screenshots
@@ -73,6 +74,9 @@ for config files in the following order:
 
 See [conf/yclock.conf](conf/yclock.conf) for the full sample config with every
 option explained. The default theme is Catppuccin Macchiato.
+
+Note on `click_through`: with a maximised window the pointer is almost always
+over the clock, so hover-unlock keeps triggering.
 
 Short example:
 ```perl
