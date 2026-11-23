@@ -380,3 +380,54 @@ struct CircleConfigTests {
         }
     }
 }
+
+@Suite("Mark Tier Tests")
+struct MarkTierTests {
+    @Test("Minute index maps to exclusive tier")
+    func testTiers() {
+        for i in 0..<60 {
+            let expected: MarkTier = i % 15 == 0 ? .quarter : (i % 5 == 0 ? .hour : .minute)
+            #expect(MarkTier.of(minute: i) == expected)
+        }
+        #expect((0..<60).filter { MarkTier.of(minute: $0) == .quarter } == [0, 15, 30, 45])
+        #expect((0..<60).filter { MarkTier.of(minute: $0) == .hour }.count == 8)
+        #expect((0..<60).filter { MarkTier.of(minute: $0) == .minute }.count == 48)
+    }
+
+    @Test("Defaults follow foreground; minute hidden")
+    func testDefaults() {
+        let c = Config.parse("")
+        #expect(c.hourMarkColor == c.foreground)
+        #expect(c.quarterMarkColor == c.foreground)
+        #expect(c.minuteMarkColor.alphaComponent == 0)
+        #expect(Config.default.hourMarkColor == Config.default.foreground)
+        #expect(Config.default.minuteMarkColor.alphaComponent == 0)
+        let t = Theme.catppuccinMacchiato
+        #expect(t.markColor(.quarter) == t.foreground)
+        #expect(t.markColor(.hour) == t.foreground)
+        #expect(t.markColor(.minute).alphaComponent == 0)
+    }
+
+    @Test("Foreground propagates, even when set later")
+    func testForeground() {
+        let c = Config.parse("hour_mark_color = zzz\nforeground = #112233")
+        let fg = Config.parseColor("#112233")!
+        #expect(c.hourMarkColor == fg)
+        #expect(c.quarterMarkColor == fg)
+        #expect(c.minuteMarkColor == fg.withAlphaComponent(0))
+    }
+
+    @Test("Overrides")
+    func testOverrides() {
+        let c = Config.parse("""
+        minute_mark_color = #11111180
+        hour_mark_color = #222222
+        quarter_mark_color = #33333300
+        foreground = #444444
+        """)
+        #expect(c.minuteMarkColor == Config.parseColor("#11111180"))
+        #expect(c.hourMarkColor == Config.parseColor("#222222"))
+        #expect(c.quarterMarkColor.alphaComponent == 0)
+        #expect(c.foreground == Config.parseColor("#444444"))
+    }
+}

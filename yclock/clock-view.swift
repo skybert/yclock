@@ -158,25 +158,13 @@ public class ClockView: NSView {
             circlePath.lineWidth = geometry.circleWidth * k
             circlePath.stroke()
         }
-        theme.foreground.setStroke()
-
-        // Draw hour markers
-        for h in 0..<12 {
-            let angle = CGFloat(h) * .pi / 6 - .pi / 2
-            let innerRadius = radius * 0.85
-            let outerRadius = radius * 0.95
-
-            let x1 = center.x + cos(angle) * innerRadius
-            let y1 = center.y + sin(angle) * innerRadius
-            let x2 = center.x + cos(angle) * outerRadius
-            let y2 = center.y + sin(angle) * outerRadius
-
-            let markerPath = NSBezierPath()
-            markerPath.move(to: NSPoint(x: x1, y: y1))
-            markerPath.line(to: NSPoint(x: x2, y: y2))
-            markerPath.lineWidth = Metrics.tickLineWidth * k
-            markerPath.stroke()
+        for i in 0..<60 {
+            let color = theme.markColor(MarkTier.of(minute: i))
+            guard color.alphaComponent > 0 else { continue }
+            color.setStroke()
+            drawMark(at: center, radius: radius, index: i, k: k)
         }
+        theme.foreground.setStroke()
 
         // Draw hour hand
         let hourAngle = (CGFloat(hour % 12) + CGFloat(minute) / 60) * .pi / 6 - .pi / 2
@@ -211,6 +199,15 @@ public class ClockView: NSView {
     public func toggleSeconds() {
         showSeconds.toggle()
         needsDisplay = true
+    }
+
+    func drawMark(at center: NSPoint, radius: CGFloat, index: Int, k: CGFloat) {
+        let angle = CGFloat(index) * .pi / 30 - .pi / 2
+        let path = NSBezierPath()
+        path.move(to: NSPoint(x: center.x + cos(angle) * radius * 0.85, y: center.y + sin(angle) * radius * 0.85))
+        path.line(to: NSPoint(x: center.x + cos(angle) * radius * 0.95, y: center.y + sin(angle) * radius * 0.95))
+        path.lineWidth = Metrics.tickLineWidth * k
+        path.stroke()
     }
 
     func drawHand(at center: NSPoint, angle: CGFloat, length: CGFloat, width: CGFloat) {

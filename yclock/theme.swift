@@ -5,6 +5,9 @@ public struct Config {
     let foreground: NSColor
     let secondHand: NSColor
     let circleColor: NSColor
+    let minuteMarkColor: NSColor
+    let hourMarkColor: NSColor
+    let quarterMarkColor: NSColor
     let isDigital: Bool
     let width: CGFloat
     let height: CGFloat
@@ -21,6 +24,9 @@ public struct Config {
         foreground: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
         secondHand: NSColor(red: 237/255, green: 135/255, blue: 150/255, alpha: 1.0),
         circleColor: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
+        minuteMarkColor: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 0),
+        hourMarkColor: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
+        quarterMarkColor: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
         isDigital: false,
         width: 100,
         height: 100,
@@ -72,6 +78,9 @@ public struct Config {
         var foreground: NSColor?
         var secondHand: NSColor?
         var circleColor: NSColor?
+        var minuteMarkColor: NSColor?
+        var hourMarkColor: NSColor?
+        var quarterMarkColor: NSColor?
         var isDigital: Bool?
         var width: CGFloat?
         var height: CGFloat?
@@ -104,6 +113,12 @@ public struct Config {
                 secondHand = parseColor(value)
             case "circle_color":
                 circleColor = parseColor(value)
+            case "minute_mark_color":
+                minuteMarkColor = parseColor(value)
+            case "hour_mark_color":
+                hourMarkColor = parseColor(value)
+            case "quarter_mark_color":
+                quarterMarkColor = parseColor(value)
             case "mode":
                 isDigital = (value.lowercased() == "digital")
             case "width":
@@ -159,6 +174,9 @@ public struct Config {
             foreground: resolvedForeground,
             secondHand: secondHand ?? Config.default.secondHand,
             circleColor: circleColor ?? resolvedForeground,
+            minuteMarkColor: minuteMarkColor ?? resolvedForeground.withAlphaComponent(0),
+            hourMarkColor: hourMarkColor ?? resolvedForeground,
+            quarterMarkColor: quarterMarkColor ?? resolvedForeground,
             isDigital: isDigital ?? Config.default.isDigital,
             width: width ?? Config.default.width,
             height: height ?? Config.default.height,
@@ -288,17 +306,44 @@ public struct ClockGeometry: Equatable {
     public static let `default` = ClockGeometry()
 }
 
+public enum MarkTier: CaseIterable {
+    case minute, hour, quarter
+
+    /// Tier owning minute position `index` (0..<60).
+    public static func of(minute index: Int) -> MarkTier {
+        let i = ((index % 60) + 60) % 60
+        if i % 15 == 0 { return .quarter }
+        if i % 5 == 0 { return .hour }
+        return .minute
+    }
+}
+
 public struct Theme {
     let background: NSColor
     let foreground: NSColor
     let secondHand: NSColor
     let circle: NSColor
+    let minuteMark: NSColor
+    let hourMark: NSColor
+    let quarterMark: NSColor
 
-    public init(background: NSColor, foreground: NSColor, secondHand: NSColor, circle: NSColor? = nil) {
+    public init(background: NSColor, foreground: NSColor, secondHand: NSColor, circle: NSColor? = nil,
+                minuteMark: NSColor? = nil, hourMark: NSColor? = nil, quarterMark: NSColor? = nil) {
         self.background = background
         self.foreground = foreground
         self.secondHand = secondHand
         self.circle = circle ?? foreground
+        self.minuteMark = minuteMark ?? foreground.withAlphaComponent(0)
+        self.hourMark = hourMark ?? foreground
+        self.quarterMark = quarterMark ?? foreground
+    }
+
+    func markColor(_ tier: MarkTier) -> NSColor {
+        switch tier {
+        case .minute: return minuteMark
+        case .hour: return hourMark
+        case .quarter: return quarterMark
+        }
     }
 
     public static let catppuccinMacchiato = Theme(

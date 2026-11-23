@@ -80,7 +80,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             background: config.background,
             foreground: config.foreground,
             secondHand: config.secondHand,
-            circle: config.circleColor
+            circle: config.circleColor,
+            minuteMark: config.minuteMarkColor,
+            hourMark: config.hourMarkColor,
+            quarterMark: config.quarterMarkColor
         )
         window.contentView = clockView
         window.makeKeyAndOrderFront(nil)
