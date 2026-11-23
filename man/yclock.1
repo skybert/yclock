@@ -52,6 +52,18 @@ Foreground color for text and clock hands in RGB hex format (e.g., #cad3f5)
 .TP
 .B second_hand = \fI#RRGGBB[AA]\fR
 Second hand color in RGB hex format (e.g., #ed8796)
+.TP
+.B circle_color = \fI#RRGGBB[AA]\fR
+Color of the circle around the clock face (default: the \fBforeground\fR color, even if foreground is set later in the file). Invalid values use the default. A fully transparent color such as \fB#RRGGBB00\fR hides the circle. Does not affect the marks.
+.TP
+.B quarter_mark_color = \fI#RRGGBB[AA]\fR
+Color of the quarter marks at 0, 15, 30 and 45 minutes (default: the \fBforeground\fR color, even if foreground is set later in the file). Invalid values use the default. A fully transparent color such as \fB#RRGGBB00\fR hides the tier.
+.TP
+.B hour_mark_color = \fI#RRGGBB[AA]\fR
+Color of the hour marks at the other multiples of 5 minutes (default: the \fBforeground\fR color). Invalid values use the default. A fully transparent color hides the tier.
+.TP
+.B minute_mark_color = \fI#RRGGBB[AA]\fR
+Color of the minute marks at all remaining minute positions (default: the \fBforeground\fR color with alpha 00, i.e. hidden). Invalid values use the default. Each position belongs to its highest tier only, so hiding a quarter mark does not show an hour mark in its place.
 .PP
 Colors are written as #RRGGBB or #RRGGBBAA (the # is optional). The last byte
 is alpha: 00 is fully transparent, which hides the element, and ff is opaque.
@@ -59,6 +71,12 @@ Without it the color is opaque. Invalid colors fall back to the default.
 .TP
 .B mode = \fIanalog|digital\fR
 Clock mode, either "analog" or "digital" (default: analog)
+.TP
+.B font = \fINAME\fR
+Font name for digital clock (optional). Examples: Menlo, Monaco, Courier
+.TP
+.B show_in_dock = \fItrue|false\fR
+Show application in Dock and Cmd+Tab switcher (default: false). When false, the app runs as an accessory and doesn't appear in the Dock or application switcher.
 .TP
 .B width = \fINUMBER\fR
 Window width in base units (default: 100). On-screen width in pixels is width * scale.
@@ -69,23 +87,8 @@ Window height in base units (default: 100). On-screen height in pixels is height
 .B scale = \fINUMBER\fR
 Pixels per base unit (default: 1.64). Must be greater than 0; invalid values use the default.
 .TP
-.B font = \fINAME\fR
-Font name for digital clock (optional). Examples: Menlo, Monaco, Courier
-.TP
-.B show_in_dock = \fItrue|false\fR
-Show application in Dock and Cmd+Tab switcher (default: false). When false, the app runs as an accessory and doesn't appear in the Dock or application switcher.
-.TP
 .B opacity = \fIVALUE\fR
 Window opacity from 0.0 (transparent) to 1.0 (opaque), applied to the whole window (default: 0.85). Values outside the range are clamped; invalid values use the default.
-.TP
-.B hour_hand_width = \fINUMBER\fR
-Hour hand width in base units (default: 3.7). Must be 0 or greater; invalid values use the default.
-.TP
-.B minute_hand_width = \fINUMBER\fR
-Minute hand width in base units (default: 2.4). Must be 0 or greater; invalid values use the default.
-.TP
-.B second_hand_width = \fINUMBER\fR
-Second hand width in base units (default: 1.2). Must be 0 or greater; invalid values use the default.
 .TP
 .B corner_radius = \fINUMBER\fR
 Window corner radius in base units (default: 7.3). Must be 0 or greater; invalid values use the default. The radius is capped at half the shorter window side, so a very large value (e.g. 1000) makes a square window round and a non-square window a capsule.
@@ -93,20 +96,17 @@ Window corner radius in base units (default: 7.3). Must be 0 or greater; invalid
 .B clock_size = \fINUMBER\fR
 Diameter of the analog clock circle in base units (default: 87.8). Must be greater than 0; invalid values use the default. With the default 100x100 window the clock leaves a small margin; values larger than the window are clipped. Has no effect in digital mode.
 .TP
-.B circle_color = \fI#RRGGBB[AA]\fR
-Color of the circle around the clock face (default: the \fBforeground\fR color, even if foreground is set later in the file). Invalid values use the default. A fully transparent color such as \fB#RRGGBB00\fR hides the circle. Does not affect the marks.
+.B hour_hand_width = \fINUMBER\fR
+Hour hand width in base units (default: 3.7). Must be 0 or greater, and 0 hides the hand; invalid values use the default.
+.TP
+.B minute_hand_width = \fINUMBER\fR
+Minute hand width in base units (default: 2.4). Must be 0 or greater, and 0 hides the hand; invalid values use the default.
+.TP
+.B second_hand_width = \fINUMBER\fR
+Second hand width in base units (default: 1.2). Must be 0 or greater, and 0 hides the hand; invalid values use the default.
 .TP
 .B circle_width = \fINUMBER\fR
 Circle line width in base units (default: 1.2). Must be 0 or greater; invalid values use the default. 0 hides the circle.
-.TP
-.B quarter_mark_color = \fI#RRGGBB[AA]\fR
-Color of the quarter marks at 0, 15, 30 and 45 minutes (default: the \fBforeground\fR color, even if foreground is set later in the file). Invalid values use the default. A fully transparent color such as \fB#RRGGBB00\fR hides the tier.
-.TP
-.B hour_mark_color = \fI#RRGGBB[AA]\fR
-Color of the hour marks at the other multiples of 5 minutes (default: the \fBforeground\fR color). Invalid values use the default. A fully transparent color hides the tier.
-.TP
-.B minute_mark_color = \fI#RRGGBB[AA]\fR
-Color of the minute marks at all remaining minute positions (default: the \fBforeground\fR color with alpha 00, i.e. hidden). Invalid values use the default. Each position belongs to its highest tier only, so hiding a quarter mark does not show an hour mark in its place.
 .TP
 .B quarter_mark_size = \fIW\fRx\fIL\fR
 .TQ
@@ -114,6 +114,9 @@ Color of the minute marks at all remaining minute positions (default: the \fBfor
 .TQ
 .B minute_mark_size = \fIW\fRx\fIL\fR
 Size of the marks of each tier in base units (defaults: 1.2x4.4 for hour and quarter, 1.2 for minute). \fIW\fR is the width along the circle and \fIL\fR the length towards the centre. The value is one or two numbers (fractions allowed, e.g. \fB.5\fR) separated by any run of non-numeric characters, so \fB1.2x4.4\fR, \fB1.2:4.4\fR and \fB1.2 x 4.4\fR are equivalent. A single number \fIN\fR means \fINxN\fR. A mark with a zero width or length is not drawn. More than two numbers, no numbers, or other invalid values use the default.
+.TP
+.B mark_inset = \fINUMBER\fR
+Distance in base units from the clock circle to the outer end of dash marks, or to the centre of dot marks (default: 2.2). A dash spans from \fIinset + L\fR to \fIinset\fR inside the circle radius. Must be 0 or greater; invalid values use the default.
 .TP
 .B mark_style = \fIdashes\fR|\fIdots\fR
 Style of the marks of all tiers (default: dashes, case-insensitive). A dot is a filled ellipse of \fIW\fRx\fIL\fR (width along the circle, length towards the centre) centred at the inset distance from the circle, so a single-number size \fIN\fR gives a round dot of diameter \fIN\fR. Invalid values use the default. Example of a dotted face without the circle:
@@ -128,9 +131,6 @@ hour_mark_size = 2
 quarter_mark_size = 3
 .fi
 .RE
-.TP
-.B mark_inset = \fINUMBER\fR
-Distance in base units from the clock circle to the outer end of dash marks, or to the centre of dot marks (default: 2.2). A dash spans from \fIinset + L\fR to \fIinset\fR inside the circle radius. Must be 0 or greater; invalid values use the default.
 .SH KEYBOARD SHORTCUTS
 When the clock window is active:
 .TP
