@@ -3,6 +3,7 @@
 // animateUnlocking -> unlocked: the ring completes, or the app gets activated.
 // unlocked -> animateLocking: pointer leaves without a click, or the app deactivates.
 // animateLocking -> idle when the animation ends; the pointer re-entering or a click cancels it.
+// While dragging (unlock modifier held), leaving or deactivation is deferred until release.
 // Activation during launch is ignored. After locking, unlocking is re-armed only once
 // the pointer has left the clock.
 
@@ -17,6 +18,8 @@ enum UnlockEvent: Equatable {
     case appActivated
     case appDeactivated
     case mouseDown
+    case dragStarted
+    case dragEnded
     case animationFinished(Int)
 }
 
@@ -37,6 +40,8 @@ final class UnlockController {
     private var prevMouseIn = false
     private var seenMouse = false
     private var interacted = false
+    private var dragging = false
+    private var pendingLock = false
     private var animationID = 0
 
     var wantsFastTicks: Bool { (state != .idle && state != .disabled) || (state == .idle && !armed) }
@@ -57,6 +62,15 @@ final class UnlockController {
             if state == .unlocked && mouseIn { seenMouse = true }
         }
         if event == .mouseDown && state == .unlocked { interacted = true }
+        if state == .unlocked {
+            switch event {
+            case .dragStarted: dragging = true
+            case .dragEnded: dragging = false
+            case .appDeactivated where dragging: pendingLock = true
+            case .appActivated: pendingLock = false
+            default: break
+            }
+        }
 
         if let next = nextState(for: event, mouseEntered: mouseEntered) {
             transition(to: next)
@@ -80,9 +94,11 @@ final class UnlockController {
         case (.idle, .appActivated), (.animateUnlocking, .appActivated):
             return launching ? nil : .unlocked
         case (.unlocked, .tick(let mouseIn, _)):
-            return !mouseIn && seenMouse && !interacted ? lockTarget : nil
+            return !dragging && !mouseIn && seenMouse && !interacted ? lockTarget : nil
         case (.unlocked, .appDeactivated):
-            return lockTarget
+            return dragging ? nil : lockTarget
+        case (.unlocked, .dragEnded):
+            return pendingLock ? lockTarget : nil
         case (.animateLocking, .tick):
             return mouseEntered ? .unlocked : nil
         case (.animateLocking, .appActivated), (.animateLocking, .mouseDown):
@@ -101,6 +117,8 @@ final class UnlockController {
     private func transition(to next: UnlockState) {
         let previous = state
         state = next
+        dragging = false
+        pendingLock = false
         switch next {
         case .disabled:
             break

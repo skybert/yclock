@@ -86,6 +86,36 @@ enum UnlockedDimming {
     }
 }
 
+enum FollowDrag {
+    static func shouldStart(
+        hasModifiers: Bool, modifiersMatch: Bool, previouslyMatched: Bool, pointerInside: Bool
+    ) -> Bool {
+        hasModifiers && modifiersMatch && !previouslyMatched && pointerInside
+    }
+
+    /// All rects are in global coordinates (y up); screens are visibleFrames.
+    static func origin(
+        startOrigin: CGPoint, startMouse: CGPoint, mouse: CGPoint, windowSize: CGSize, screens: [CGRect]
+    ) -> CGPoint {
+        let desired = CGPoint(x: startOrigin.x + mouse.x - startMouse.x, y: startOrigin.y + mouse.y - startMouse.y)
+        let desiredFrame = CGRect(origin: desired, size: windowSize)
+        if screens.contains(where: { $0.contains(desiredFrame) }) { return desired }
+        guard let screen = screens.first(where: { $0.contains(mouse) })
+            ?? screens.max(by: { area($0.intersection(desiredFrame)) < area($1.intersection(desiredFrame)) })
+        else { return desired }
+        return CGPoint(
+            x: clamp(desired.x, lower: screen.minX, upper: screen.maxX - windowSize.width, fallback: screen.minX),
+            y: clamp(desired.y, lower: screen.minY, upper: screen.maxY - windowSize.height,
+                     fallback: screen.maxY - windowSize.height))
+    }
+
+    private static func area(_ r: CGRect) -> CGFloat { r.isNull ? 0 : r.width * r.height }
+
+    private static func clamp(_ v: CGFloat, lower: CGFloat, upper: CGFloat, fallback: CGFloat) -> CGFloat {
+        upper < lower ? fallback : min(max(v, lower), upper)
+    }
+}
+
 final class ClickThroughPresenter: UnlockPresenter {
     private let window: NSWindow
     private let clockView: ClockView
@@ -102,6 +132,11 @@ final class ClickThroughPresenter: UnlockPresenter {
     private var switchedToRegular = false
     private var phase = PresenterPhase.idle
     private var keyObservers: [NSObjectProtocol] = []
+    private var followTimer: Timer?
+    private var followStartOrigin = CGPoint.zero
+    private var followStartMouse = CGPoint.zero
+    private var modifiersMatched = false
+    private var locking = false
 
     init(window: NSWindow, clockView: ClockView, config: Config, showInDock: Bool = false) {
         useAppSwitcher = ActivationPolicies.switchesOnUnlock(
@@ -133,6 +168,7 @@ final class ClickThroughPresenter: UnlockPresenter {
         slowTimer?.invalidate()
         fastTimer?.invalidate()
         animationTimer?.invalidate()
+        followTimer?.invalidate()
         if let monitor = monitor { NSEvent.removeMonitor(monitor) }
         keyObservers.forEach { NotificationCenter.default.removeObserver($0) }
     }
@@ -155,6 +191,45 @@ final class ClickThroughPresenter: UnlockPresenter {
         let mouseIn = window.frame.contains(NSEvent.mouseLocation)
         let match = config.unlockModifiers.isSatisfied(by: NSEvent.modifierFlags)
         handle(.tick(mouseIn: mouseIn, modifiersMatch: match))
+        updateFollow(mouseIn: mouseIn, match: match)
+    }
+
+    private func updateFollow(mouseIn: Bool, match: Bool) {
+        guard phase == .unlocked, !locking else {
+            modifiersMatched = false
+            return
+        }
+        if followTimer == nil,
+           FollowDrag.shouldStart(
+               hasModifiers: !config.unlockModifiers.isEmpty, modifiersMatch: match,
+               previouslyMatched: modifiersMatched, pointerInside: mouseIn) {
+            startFollowing()
+        }
+        modifiersMatched = match
+    }
+
+    private func startFollowing() {
+        followStartOrigin = window.frame.origin
+        followStartMouse = NSEvent.mouseLocation
+        followTimer = scheduled(interval: 1.0 / 60) { [weak self] in self?.followStep() }
+        handle(.dragStarted)
+    }
+
+    private func followStep() {
+        guard config.unlockModifiers.isSatisfied(by: NSEvent.modifierFlags) else {
+            stopFollowing()
+            handle(.dragEnded)
+            return
+        }
+        let origin = FollowDrag.origin(
+            startOrigin: followStartOrigin, startMouse: followStartMouse, mouse: NSEvent.mouseLocation,
+            windowSize: window.frame.size, screens: NSScreen.screens.map { $0.visibleFrame })
+        if origin != window.frame.origin { window.setFrameOrigin(origin) }
+    }
+
+    private func stopFollowing() {
+        followTimer?.invalidate()
+        followTimer = nil
     }
 
     private func scheduled(interval: TimeInterval, _ block: @escaping () -> Void) -> Timer {
@@ -187,6 +262,9 @@ final class ClickThroughPresenter: UnlockPresenter {
 
     func showIdle() {
         cancelAnimation()
+        stopFollowing()
+        locking = false
+        modifiersMatched = false
         phase = .idle
         applyAppearance()
         if switchedToRegular {
@@ -210,6 +288,8 @@ final class ClickThroughPresenter: UnlockPresenter {
         cancelAnimation()
         clockView.showFullRing(color: config.unlockedColor)
         phase = .unlocked
+        locking = false
+        modifiersMatched = false
         applyAppearance()
         window.hasShadow = true
         window.ignoresMouseEvents = false
@@ -224,6 +304,8 @@ final class ClickThroughPresenter: UnlockPresenter {
     }
 
     func startLocking(duration: TimeInterval, id: Int) {
+        stopFollowing()
+        locking = true
         phase = .unlocked
         applyAppearance()
         clockView.eraseRing(color: config.unlockedColor, duration: duration)

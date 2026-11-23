@@ -284,6 +284,98 @@ struct UnlockTests {
         }
         #expect(pulses == [true, false])
     }
+
+    private func unlockedWithMouse(duration: TimeInterval = 1) -> (UnlockController, FakePresenter) {
+        let (c, p) = make(duration: duration)
+        c.handle(.appActivated)
+        c.handle(hover)
+        return (c, p)
+    }
+
+    @Test("Leaving during drag does not lock")
+    func dragLeaveNoLock() {
+        let (c, _) = unlockedWithMouse()
+        c.handle(.dragStarted)
+        c.handle(away)
+        c.handle(away)
+        #expect(c.state == .unlocked)
+    }
+
+    @Test("Deactivation during drag is deferred until dragEnded")
+    func dragDeactivateDeferred() {
+        let (c, _) = unlockedWithMouse()
+        c.handle(.dragStarted)
+        c.handle(.appDeactivated)
+        #expect(c.state == .unlocked)
+        c.handle(.dragEnded)
+        #expect(c.state == .animateLocking)
+    }
+
+    @Test("Activation after deactivation during drag cancels the pending lock")
+    func dragDeactivateActivate() {
+        let (c, _) = unlockedWithMouse()
+        c.handle(.dragStarted)
+        c.handle(.appDeactivated)
+        c.handle(.appActivated)
+        c.handle(.dragEnded)
+        #expect(c.state == .unlocked)
+    }
+
+    @Test("dragEnded with pointer inside stays unlocked, leaving then locks")
+    func dragEndedInside() {
+        let (c, _) = unlockedWithMouse()
+        c.handle(.dragStarted)
+        c.handle(hover)
+        c.handle(.dragEnded)
+        #expect(c.state == .unlocked)
+        c.handle(away)
+        #expect(c.state == .animateLocking)
+    }
+
+    @Test("dragEnded with pointer outside locks on next tick")
+    func dragEndedOutside() {
+        let (c, _) = unlockedWithMouse()
+        c.handle(.dragStarted)
+        c.handle(away)
+        c.handle(.dragEnded)
+        #expect(c.state == .unlocked)
+        c.handle(away)
+        #expect(c.state == .animateLocking)
+    }
+
+    @Test("Drag events are ignored outside unlocked")
+    func dragIgnoredOutsideUnlocked() {
+        let (c, p) = make()
+        c.handle(.dragStarted)
+        c.handle(.dragEnded)
+        #expect(c.state == .idle)
+        c.handle(hover)
+        c.handle(.dragStarted)
+        c.handle(.animationFinished(p.lastID))
+        #expect(c.state == .unlocked)
+        c.handle(away)
+        #expect(c.state == .unlocked)
+        c.handle(hover)
+        c.handle(away)
+        #expect(c.state == .animateLocking)
+        c.handle(.dragStarted)
+        c.handle(.dragEnded)
+        #expect(c.state == .animateLocking)
+    }
+
+    @Test("Instant lock variant: deferred until dragEnded")
+    func dragInstantLock() {
+        let (c, _) = unlockedWithMouse(duration: 0)
+        c.handle(.appActivated)
+        #expect(c.state == .unlocked)
+        c.handle(.dragStarted)
+        c.handle(hover)
+        c.handle(away)
+        c.handle(.appDeactivated)
+        #expect(c.state == .unlocked)
+        c.handle(.dragEnded)
+        #expect(c.state == .idle)
+    }
 }
 
 @Suite("Relaunch re-entry")
