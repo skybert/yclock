@@ -54,6 +54,38 @@ struct ConfigTests {
         #expect(Config.parseColor("#FFFFFFF") == nil)
     }
 
+    @Test("Parse RGBA colors")
+    func testParseColorAlpha() {
+        func rgba(_ s: String) -> [CGFloat]? {
+            guard let c = Config.parseColor(s)?.usingColorSpace(.sRGB) else { return nil }
+            return [c.redComponent, c.greenComponent, c.blueComponent, c.alphaComponent]
+        }
+        #expect(rgba("#ff000000") == [1, 0, 0, 0])
+        #expect(rgba("ff0000ff") == [1, 0, 0, 1])
+        #expect(rgba("#00ff0080").map { abs($0[3] - 128.0 / 255) < 0.001 } == true)
+        #expect(rgba("#0000ff")?[3] == 1)
+        #expect(rgba("0000ff")?[3] == 1)
+    }
+
+    @Test("Reject non-hex and wrong-length colors")
+    func testParseColorRejects() {
+        #expect(Config.parseColor("zzzzzz") == nil)
+        #expect(Config.parseColor("#12345g") == nil)
+        #expect(Config.parseColor("#+12345") == nil)
+        #expect(Config.parseColor("#1234567") == nil)
+        #expect(Config.parseColor("#123456789") == nil)
+        #expect(Config.parseColor("") == nil)
+    }
+
+    @Test("Parsed background keeps alpha; invalid falls back")
+    func testParseConfigContents() {
+        let c = Config.parse("background = #11223380\nforeground = zzzzzz\nsecond_hand = #ff000000\n")
+        #expect(abs(c.background.alphaComponent - 128.0 / 255) < 0.001)
+        #expect(c.foreground == Config.default.foreground)
+        #expect(c.secondHand.alphaComponent == 0)
+        #expect(abs(Config.default.background.alphaComponent - 0.95) < 0.001)
+    }
+
     @Test("Parse blue color")
     func testParseBlueColor() {
         let color = Config.parseColor("#0000FF")

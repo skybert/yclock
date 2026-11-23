@@ -56,6 +56,10 @@ public struct Config {
             return .default
         }
 
+        return parse(contents)
+    }
+
+    public static func parse(_ contents: String) -> Config {
         var background: NSColor?
         var foreground: NSColor?
         var secondHand: NSColor?
@@ -130,16 +134,19 @@ public struct Config {
     public static func parseColor(_ value: String) -> NSColor? {
         let hex = value.hasPrefix("#") ? String(value.dropFirst()) : value
 
-        guard hex.count == 6 else { return nil }
+        guard hex.count == 6 || hex.count == 8,
+              hex.allSatisfy({ $0.isASCII && $0.isHexDigit }),
+              let rgba = UInt64(hex, radix: 16) else { return nil }
 
-        var rgb: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&rgb)
+        let hasAlpha = hex.count == 8
+        let v = hasAlpha ? rgba : (rgba << 8) | 0xFF
 
-        let r = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
-        let g = CGFloat((rgb & 0x00FF00) >> 8) / 255.0
-        let b = CGFloat(rgb & 0x0000FF) / 255.0
-
-        return NSColor(red: r, green: g, blue: b, alpha: 1.0)
+        return NSColor(
+            red: CGFloat((v >> 24) & 0xFF) / 255.0,
+            green: CGFloat((v >> 16) & 0xFF) / 255.0,
+            blue: CGFloat((v >> 8) & 0xFF) / 255.0,
+            alpha: CGFloat(v & 0xFF) / 255.0
+        )
     }
 
     private static func getStateDirectory() -> URL? {

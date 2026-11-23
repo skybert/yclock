@@ -63,8 +63,8 @@ Macchiato.
 
 Example configuration:
 ```perl
-# Colors in RGB hex format
-background = #24273a
+# Colors in #RRGGBB or #RRGGBBAA hex format (AA = alpha, 00 hides the element)
+background = #24273af2
 foreground = #cad3f5
 second_hand = #ed8796
 
