@@ -343,3 +343,40 @@ struct ClockSizeConfigTests {
         }
     }
 }
+
+@Suite("Circle Config Tests")
+struct CircleConfigTests {
+    @Test("Defaults")
+    func testDefaults() {
+        let c = Config.parse("")
+        #expect(c.circleColor == c.foreground)
+        #expect(Config.default.circleColor == Config.default.foreground)
+        #expect(c.geometry.circleWidth == 1.2)
+        #expect(ClockView(frame: .zero).geometry.circleWidth == 1.2)
+        #expect(Theme.catppuccinMacchiato.circle == Theme.catppuccinMacchiato.foreground)
+    }
+
+    @Test("Follows foreground, even when it appears later")
+    func testFollowsForeground() {
+        let c = Config.parse("circle_width = 2\nforeground = #112233")
+        #expect(c.circleColor == Config.parseColor("#112233"))
+        #expect(Config.parse("circle_color = zzz\nforeground = #112233").circleColor == Config.parseColor("#112233"))
+    }
+
+    @Test("Explicit circle_color wins")
+    func testExplicit() {
+        let c = Config.parse("circle_color = #ff000080\nforeground = #112233")
+        #expect(c.circleColor == Config.parseColor("#ff000080"))
+        #expect(c.foreground == Config.parseColor("#112233"))
+        #expect(Config.parse("circle_color = #ffffff00").circleColor.alphaComponent == 0)
+    }
+
+    @Test("Width parsing")
+    func testWidth() {
+        #expect(Config.parse("circle_width = 0").geometry.circleWidth == 0)
+        #expect(Config.parse("circle_width = 3.5").geometry.circleWidth == 3.5)
+        for bad in ["-1", "abc", "inf", "nan"] {
+            #expect(Config.parse("circle_width = \(bad)").geometry.circleWidth == 1.2)
+        }
+    }
+}

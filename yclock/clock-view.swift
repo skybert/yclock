@@ -149,13 +149,16 @@ public class ClockView: NSView {
         let radius = geometry.clockSize * k / 2
 
         // Draw clock face
+        if theme.circle.alphaComponent > 0 && geometry.circleWidth > 0 {
+            theme.circle.setStroke()
+            let circlePath = NSBezierPath(ovalIn: NSRect(x: center.x - radius,
+                                                          y: center.y - radius,
+                                                          width: radius * 2,
+                                                          height: radius * 2))
+            circlePath.lineWidth = geometry.circleWidth * k
+            circlePath.stroke()
+        }
         theme.foreground.setStroke()
-        let circlePath = NSBezierPath(ovalIn: NSRect(x: center.x - radius,
-                                                      y: center.y - radius,
-                                                      width: radius * 2,
-                                                      height: radius * 2))
-        circlePath.lineWidth = Metrics.circleLineWidth * k
-        circlePath.stroke()
 
         // Draw hour markers
         for h in 0..<12 {

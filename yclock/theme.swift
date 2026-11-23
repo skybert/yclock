@@ -4,6 +4,7 @@ public struct Config {
     let background: NSColor
     let foreground: NSColor
     let secondHand: NSColor
+    let circleColor: NSColor
     let isDigital: Bool
     let width: CGFloat
     let height: CGFloat
@@ -19,6 +20,7 @@ public struct Config {
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
         foreground: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
         secondHand: NSColor(red: 237/255, green: 135/255, blue: 150/255, alpha: 1.0),
+        circleColor: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
         isDigital: false,
         width: 100,
         height: 100,
@@ -69,6 +71,7 @@ public struct Config {
         var background: NSColor?
         var foreground: NSColor?
         var secondHand: NSColor?
+        var circleColor: NSColor?
         var isDigital: Bool?
         var width: CGFloat?
         var height: CGFloat?
@@ -99,6 +102,8 @@ public struct Config {
                 foreground = parseColor(value)
             case "second_hand":
                 secondHand = parseColor(value)
+            case "circle_color":
+                circleColor = parseColor(value)
             case "mode":
                 isDigital = (value.lowercased() == "digital")
             case "width":
@@ -137,6 +142,8 @@ public struct Config {
                 if let v = parseNonNegative(value) { geometry.secondHandWidth = v }
             case "corner_radius":
                 if let v = parseNonNegative(value) { geometry.cornerRadius = v }
+            case "circle_width":
+                if let v = parseNonNegative(value) { geometry.circleWidth = v }
             case "clock_size":
                 if let v = parseNonNegative(value), v > 0 { geometry.clockSize = v }
             default:
@@ -144,10 +151,14 @@ public struct Config {
             }
         }
 
+        // Optional colours default to the foreground, resolved after the whole file is parsed
+        let resolvedForeground = foreground ?? Config.default.foreground
+
         return Config(
             background: background ?? Config.default.background,
-            foreground: foreground ?? Config.default.foreground,
+            foreground: resolvedForeground,
             secondHand: secondHand ?? Config.default.secondHand,
+            circleColor: circleColor ?? resolvedForeground,
             isDigital: isDigital ?? Config.default.isDigital,
             width: width ?? Config.default.width,
             height: height ?? Config.default.height,
@@ -272,6 +283,7 @@ public struct ClockGeometry: Equatable {
     public var secondHandWidth: CGFloat = Metrics.secondHandWidth
     public var cornerRadius: CGFloat = Metrics.cornerRadius
     public var clockSize: CGFloat = Metrics.clockDiameter
+    public var circleWidth: CGFloat = Metrics.circleLineWidth
 
     public static let `default` = ClockGeometry()
 }
@@ -280,11 +292,13 @@ public struct Theme {
     let background: NSColor
     let foreground: NSColor
     let secondHand: NSColor
+    let circle: NSColor
 
-    public init(background: NSColor, foreground: NSColor, secondHand: NSColor) {
+    public init(background: NSColor, foreground: NSColor, secondHand: NSColor, circle: NSColor? = nil) {
         self.background = background
         self.foreground = foreground
         self.secondHand = secondHand
+        self.circle = circle ?? foreground
     }
 
     public static let catppuccinMacchiato = Theme(

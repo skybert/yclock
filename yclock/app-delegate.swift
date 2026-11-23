@@ -79,7 +79,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         clockView.theme = Theme(
             background: config.background,
             foreground: config.foreground,
-            secondHand: config.secondHand
+            secondHand: config.secondHand,
+            circle: config.circleColor
         )
         window.contentView = clockView
         window.makeKeyAndOrderFront(nil)

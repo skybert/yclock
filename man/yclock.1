@@ -92,6 +92,12 @@ Window corner radius in base units (default: 7.3). Must be 0 or greater; invalid
 .TP
 .B clock_size = \fINUMBER\fR
 Diameter of the analog clock circle in base units (default: 87.8). Must be greater than 0; invalid values use the default. With the default 100x100 window the clock leaves a small margin; values larger than the window are clipped. Has no effect in digital mode.
+.TP
+.B circle_color = \fI#RRGGBB[AA]\fR
+Color of the circle around the clock face (default: the \fBforeground\fR color, even if foreground is set later in the file). Invalid values use the default. A fully transparent color such as \fB#RRGGBB00\fR hides the circle. Does not affect the tick marks.
+.TP
+.B circle_width = \fINUMBER\fR
+Circle line width in base units (default: 1.2). Must be 0 or greater; invalid values use the default. 0 hides the circle.
 .SH KEYBOARD SHORTCUTS
 When the clock window is active:
 .TP

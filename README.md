@@ -101,6 +101,12 @@ font = Menlo
 # Clock circle diameter in base units, must be > 0 (default: 87.8)
 # With the default 100x100 window this leaves a small margin; larger values are clipped
 # clock_size = 87.8
+
+# Circle color (default: the foreground color); #RRGGBB00 hides the circle
+# circle_color = #cad3f5
+
+# Circle line width in base units, must be >= 0 (default: 1.2); 0 hides the circle
+# circle_width = 1.2
 ```
 
 ## Requirements
