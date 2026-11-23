@@ -1,5 +1,9 @@
 import Cocoa
 
+public enum WindowShadow: String {
+    case `default`, enable, disable
+}
+
 public struct Config {
     let background: NSColor
     let foreground: NSColor
@@ -17,6 +21,7 @@ public struct Config {
     let windowY: CGFloat?
     let showInDock: Bool
     let opacity: CGFloat
+    let windowShadow: WindowShadow
     let geometry: ClockGeometry
 
     public static let `default` = Config(
@@ -36,6 +41,7 @@ public struct Config {
         windowY: nil,
         showInDock: false,
         opacity: 0.85,
+        windowShadow: .default,
         geometry: .default
     )
 
@@ -90,6 +96,7 @@ public struct Config {
         var windowY: CGFloat?
         var showInDock: Bool?
         var opacity: CGFloat?
+        var windowShadow = WindowShadow.default
         var geometry = ClockGeometry.default
 
         for line in contents.components(separatedBy: .newlines) {
@@ -149,6 +156,8 @@ public struct Config {
                 if let o = Double(value), o.isFinite {
                     opacity = CGFloat(min(max(o, 0), 1))
                 }
+            case "window_shadow":
+                windowShadow = WindowShadow(rawValue: value.lowercased()) ?? .default
             case "hour_hand_width":
                 if let v = parseNonNegative(value) { geometry.hourHandWidth = v }
             case "minute_hand_width":
@@ -196,6 +205,7 @@ public struct Config {
             windowY: windowY,
             showInDock: showInDock ?? Config.default.showInDock,
             opacity: opacity ?? Config.default.opacity,
+            windowShadow: windowShadow,
             geometry: geometry
         )
     }

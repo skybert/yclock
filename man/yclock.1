@@ -93,6 +93,9 @@ Window opacity from 0.0 (transparent) to 1.0 (opaque), applied to the whole wind
 .B corner_radius = \fINUMBER\fR
 Window corner radius in base units (default: 7.3). Must be 0 or greater; invalid values use the default. The radius is capped at half the shorter window side, so a very large value (e.g. 1000) makes a square window round and a non-square window a capsule.
 .TP
+.B window_shadow = default|enable|disable
+Window shadow (default: default, which leaves the system behaviour untouched). Case-insensitive; invalid values use the default. The shadow follows the visible shape, so with a round window it appears as a ring around it. Use \fBdisable\fR to remove it.
+.TP
 .B clock_size = \fINUMBER\fR
 Diameter of the analog clock circle in base units (default: 87.8). Must be greater than 0; invalid values use the default. With the default 100x100 window the clock leaves a small margin; values larger than the window are clipped. Has no effect in digital mode.
 .TP

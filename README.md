@@ -110,6 +110,10 @@ scale = 1.64
 # Capped at half the shorter side: a large value (e.g. 1000) makes the window round/capsule
 # corner_radius = 7.3
 
+# Window shadow: default, enable or disable (default: default)
+# Follows the visible shape: with a round window it appears as a ring around it
+# window_shadow = default
+
 # --- Clock face ---
 
 # Clock circle diameter in base units, must be > 0 (default: 87.8)

@@ -63,6 +63,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         window.level = .floating
         window.isOpaque = false
         window.alphaValue = config.opacity
+        switch config.windowShadow {
+        case .enable: window.hasShadow = true
+        case .disable: window.hasShadow = false
+        case .default: break
+        }
         window.backgroundColor = NSColor.clear
         window.isMovableByWindowBackground = true
 

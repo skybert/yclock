@@ -483,3 +483,31 @@ struct MarkSizeConfigTests {
         }
     }
 }
+
+@Suite("Window Shadow Tests")
+struct WindowShadowTests {
+    @Test("Default is default")
+    func defaultValue() {
+        #expect(Config.default.windowShadow == .default)
+        #expect(Config.parse("").windowShadow == .default)
+    }
+
+    @Test("Parses each value")
+    func parsesValues() {
+        #expect(Config.parse("window_shadow = default").windowShadow == .default)
+        #expect(Config.parse("window_shadow = enable").windowShadow == .enable)
+        #expect(Config.parse("window_shadow = disable").windowShadow == .disable)
+    }
+
+    @Test("Is case-insensitive")
+    func caseInsensitive() {
+        #expect(Config.parse("window_shadow = ENABLE").windowShadow == .enable)
+        #expect(Config.parse("window_shadow = Disable").windowShadow == .disable)
+    }
+
+    @Test("Invalid falls back to default")
+    func invalid() {
+        #expect(Config.parse("window_shadow = maybe").windowShadow == .default)
+        #expect(Config.parse("window_shadow = enable\nwindow_shadow = nope").windowShadow == .default)
+    }
+}
