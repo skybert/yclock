@@ -13,8 +13,9 @@ from X11 that you're used to on Linux and the BSDs.
 - Real-time updates every second
 - Clean, minimal interface with no window chrome
 - Draggable anywhere on the clock face
-- Translucent window
+- Translucent window that floats above other windows and is visible on all desktops
 - Themeable via configuration file
+- Optional click-through mode (`click_through = true`): the window ignores the mouse until you hover over it for a while (with ⇧ held by default) or activate the app
 - Command line options for startup mode
 
 ## Screenshots
@@ -40,6 +41,8 @@ Options:
   --seconds         Show seconds hand/display
   --show-in-dock    Show app in Dock and Cmd+Tab switcher
   --font-name NAME  Specify font name for digital clock
+  --new-instance    Start a new instance even if one is already running
+  --quit            Quit the running instance and exit
   --help            Show this help message
 
 Examples:
@@ -50,6 +53,17 @@ Examples:
   yclock --show-in-dock
 ```
 
+Only one instance runs at a time: launching yclock again activates the running one and exits, ignoring any other options. Use `--new-instance` to start another. `--quit` asks the running instance to quit (exit 0; also 0 if none is running, 1 if it did not quit within 3 s) and ignores all other options.
+
+## Keyboard shortcuts
+
+These work when the clock window is focused:
+
+- ⌘D: toggle digital/analog
+- ⌘S: toggle seconds
+- ⌘F: toggle maximised
+- ⌘Q: quit
+
 ## Configuration
 
 `yclock` can be themed by creating a configuration file. The app looks
@@ -58,22 +72,25 @@ for config files in the following order:
 2. `~/.config/yclock/yclock.conf`
 3. `$XDG_CONFIG_HOME/yclock/yclock.conf`
 
-See `conf/yclock.conf` for the format. The default theme is Catppuccin
-Macchiato.
+See [conf/yclock.conf](conf/yclock.conf) for the full sample config with every
+option explained. The default theme is Catppuccin Macchiato.
 
-Example configuration:
+Note on `click_through`: with a maximised window the pointer is almost always
+over the clock, so hover-unlock keeps triggering.
+
+Short example:
 ```perl
-# Colors in RGB hex format
-background = #24273a
+# Colors in #RRGGBB or #RRGGBBAA hex format (AA = alpha, 00 hides the element)
+background = #24273af2
 foreground = #cad3f5
 second_hand = #ed8796
 
 # Clock mode (analog or digital)
 mode = analog
 
-# Window dimensions
-width = 164
-height = 164
+# Window size in base units; on-screen size = value * scale
+width = 100
+height = 100
 
 # Font name for digital clock (optional)
 # Examples: Menlo, Monaco, Courier, Helvetica, Arial

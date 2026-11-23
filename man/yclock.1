@@ -8,7 +8,7 @@ yclock \- a simple analog and digital clock for macOS
 .B yclock
 is a simple clock application for macOS, inspired by xclock from X11. It provides both analog and digital clock modes with customizable appearance through configuration files and command line options.
 .PP
-The clock window is draggable, translucent, and floats above other windows. It updates in real-time every second and supports optional seconds display.
+The clock window is draggable, translucent, floats above other windows, and is visible on all desktops. It updates in real-time every second and supports optional seconds display.
 .SH OPTIONS
 .TP
 .B \-\-digital
@@ -30,6 +30,12 @@ Show application in Dock and Cmd+Tab switcher. By default, the app runs as an ac
 Specify font name for digital clock. If the font name contains spaces, enclose it in quotes.
 Examples: Menlo, Monaco, "Courier New", Helvetica
 .TP
+.B \-\-new-instance
+Start a new instance even if one is already running. Without it, launching yclock while another instance runs activates that instance and exits; other options are ignored.
+.TP
+.B \-\-quit
+Ask the running instance to quit and exit; never starts the app. Exits 0 on success or if no instance is running, 1 if the instance did not quit within 3 seconds. Other options are ignored.
+.TP
 .B \-\-help
 Display help message and exit
 .SH CONFIGURATION
@@ -44,29 +50,119 @@ can be customized using a configuration file. The application searches for confi
 .PP
 Configuration file format (key = value):
 .TP
-.B background = \fI#RRGGBB\fR
-Background color in RGB hex format (e.g., #24273a)
+.B background = \fI#RRGGBB[AA]\fR
+Background color in RGB hex format with optional alpha (default: #24273af2)
 .TP
-.B foreground = \fI#RRGGBB\fR
+.B foreground = \fI#RRGGBB[AA]\fR
 Foreground color for text and clock hands in RGB hex format (e.g., #cad3f5)
 .TP
-.B second_hand = \fI#RRGGBB\fR
+.B second_hand = \fI#RRGGBB[AA]\fR
 Second hand color in RGB hex format (e.g., #ed8796)
+.TP
+.B circle_color = \fI#RRGGBB[AA]\fR
+Color of the circle around the clock face (default: the \fBforeground\fR color, even if foreground is set later in the file). Invalid values use the default. A fully transparent color such as \fB#RRGGBB00\fR hides the circle. Does not affect the marks.
+.TP
+.B quarter_mark_color = \fI#RRGGBB[AA]\fR
+Color of the quarter marks at 0, 15, 30 and 45 minutes (default: the \fBforeground\fR color, even if foreground is set later in the file). Invalid values use the default. A fully transparent color such as \fB#RRGGBB00\fR hides the tier.
+.TP
+.B hour_mark_color = \fI#RRGGBB[AA]\fR
+Color of the hour marks at the other multiples of 5 minutes (default: the \fBforeground\fR color). Invalid values use the default. A fully transparent color hides the tier.
+.TP
+.B minute_mark_color = \fI#RRGGBB[AA]\fR
+Color of the minute marks at all remaining minute positions (default: the \fBforeground\fR color with alpha 00, i.e. hidden). Invalid values use the default. Each position belongs to its highest tier only, so hiding a quarter mark does not show an hour mark in its place.
+.PP
+Colors are written as #RRGGBB or #RRGGBBAA (the # is optional). The last byte
+is alpha: 00 is fully transparent, which hides the element, and ff is opaque.
+Without it the color is opaque. Invalid colors fall back to the default.
 .TP
 .B mode = \fIanalog|digital\fR
 Clock mode, either "analog" or "digital" (default: analog)
-.TP
-.B width = \fINUMBER\fR
-Window width in pixels (default: 164)
-.TP
-.B height = \fINUMBER\fR
-Window height in pixels (default: 164)
 .TP
 .B font = \fINAME\fR
 Font name for digital clock (optional). Examples: Menlo, Monaco, Courier
 .TP
 .B show_in_dock = \fItrue|false\fR
 Show application in Dock and Cmd+Tab switcher (default: false). When false, the app runs as an accessory and doesn't appear in the Dock or application switcher.
+.TP
+.B show_seconds = \fItrue|false\fR
+Show seconds hand or display at startup (default: false). Also accepts 1 and 0. The \fB\-\-seconds\fR option overrides it; invalid values use the default.
+.TP
+.B width = \fINUMBER\fR
+Window width in base units (default: 100). On-screen width in pixels is width * scale.
+.TP
+.B height = \fINUMBER\fR
+Window height in base units (default: 100). On-screen height in pixels is height * scale.
+.TP
+.B scale = \fINUMBER\fR
+Pixels per base unit (default: 1.64). Must be greater than 0; invalid values use the default.
+.TP
+.B opacity = \fIVALUE\fR
+Window opacity from 0.0 (transparent) to 1.0 (opaque), applied to the whole window (default: 0.85). Values outside the range are clamped; invalid values use the default.
+.TP
+.B corner_radius = \fINUMBER\fR
+Window corner radius in base units (default: 7.3). Must be 0 or greater; invalid values use the default. The radius is capped at half the shorter window side, so a very large value (e.g. 1000) makes a square window round and a non-square window a capsule.
+.TP
+.B window_shadow = default|enable|disable
+Window shadow (default: default, which leaves the system behaviour untouched). Case-insensitive; invalid values use the default. The shadow follows the visible shape, so with a round window it appears as a ring around it. Use \fBdisable\fR to remove it.
+.TP
+.B clock_size = \fINUMBER\fR
+Diameter of the analog clock circle in base units (default: 87.8). Must be greater than 0; invalid values use the default. With the default 100x100 window the clock leaves a small margin; values larger than the window are clipped. Has no effect in digital mode.
+.TP
+.B hour_hand_width = \fINUMBER\fR
+Hour hand width in base units (default: 3.7). Must be 0 or greater, and 0 hides the hand; invalid values use the default.
+.TP
+.B minute_hand_width = \fINUMBER\fR
+Minute hand width in base units (default: 2.4). Must be 0 or greater, and 0 hides the hand; invalid values use the default.
+.TP
+.B second_hand_width = \fINUMBER\fR
+Second hand width in base units (default: 1.2). Must be 0 or greater, and 0 hides the hand; invalid values use the default.
+.TP
+.B circle_width = \fINUMBER\fR
+Circle line width in base units (default: 1.2). Must be 0 or greater; invalid values use the default. 0 hides the circle.
+.TP
+.B quarter_mark_size = \fIW\fRx\fIL\fR
+.TQ
+.B hour_mark_size = \fIW\fRx\fIL\fR
+.TQ
+.B minute_mark_size = \fIW\fRx\fIL\fR
+Size of the marks of each tier in base units (defaults: 1.2x4.4 for hour and quarter, 1.2 for minute). \fIW\fR is the width along the circle and \fIL\fR the length towards the centre. The value is one or two numbers (fractions allowed, e.g. \fB.5\fR) separated by any run of non-numeric characters, so \fB1.2x4.4\fR, \fB1.2:4.4\fR and \fB1.2 x 4.4\fR are equivalent. A single number \fIN\fR means \fINxN\fR. A mark with a zero width or length is not drawn. More than two numbers, no numbers, or other invalid values use the default.
+.TP
+.B mark_inset = \fINUMBER\fR
+Distance in base units from the clock circle to the outer end of dash marks, or to the centre of dot marks (default: 2.2). A dash spans from \fIinset + L\fR to \fIinset\fR inside the circle radius. Must be 0 or greater; invalid values use the default.
+.TP
+.B mark_style = \fIdashes\fR|\fIdots\fR
+Style of the marks of all tiers (default: dashes, case-insensitive). A dot is a filled ellipse of \fIW\fRx\fIL\fR (width along the circle, length towards the centre) centred at the inset distance from the circle, so a single-number size \fIN\fR gives a round dot of diameter \fIN\fR. Invalid values use the default. Example of a dotted face without the circle:
+.PP
+.RS
+.nf
+circle_color = #cad3f500
+mark_style = dots
+minute_mark_color = #cad3f5
+minute_mark_size = 1
+hour_mark_size = 2
+quarter_mark_size = 3
+.fi
+.RE
+.TP
+.B click_through = \fItrue|false\fR
+Make the window ignore the mouse until unlocked (default: false). Also accepts 1 and 0, case-insensitive. Hovering the pointer over the clock (with the unlock modifier held, if any) fills a ring along the window edge; when full, the window flashes and gets a ring in \fBunlocked_color\fR: it takes clicks, can be dragged, and has a shadow and full opacity. Activating the app (starting it again, \fBopen -a yclock\fR) also unlocks. Moving the pointer out without clicking, or switching to another app, re-locks with the ring draining; hover unlock then re-arms once the pointer has left the window. While unlocked, holding the unlock modifier (if any) with the pointer on the clock drags it without clicking; it is kept fully on screen and stays unlocked until the modifier is released.
+.TP
+.B unlocked_in_app_switcher = \fItrue|false\fR
+While unlocked, show the app in the Dock, Cmd+Tab and menu bar; it returns to a background app when re-locked (default: false). Also accepts 1 and 0, case-insensitive. Only applies with \fBclick_through = true\fR. Has no effect when \fBshow_in_dock\fR is on, since the app is then always in the Dock and Cmd+Tab.
+.TP
+.B unlock_hover_delay = \fISECONDS\fR
+Hover time needed to unlock, and the duration of the ring animations (default: 2). Must be 0 or greater; invalid values use the default. 0 disables hover unlock, so only app activation unlocks, and re-locks instantly.
+.TP
+.B unlock_modifier = \fINAMES\fR
+Modifiers that must be held exactly while hovering (default: shift). Names are cmd/command, opt/option/alt, ctrl/control and shift, case-insensitive, separated by any non-letters. \fBnone\fR or an empty value requires no modifier. Invalid values use the default. Holding cmd or option while clicking an inactive app's window has macOS side effects (cmd+option-click hides other apps, option-click hides the previous app), which is why shift is the default.
+.TP
+.B unlock_ring_width = \fINUMBER\fR
+Unlock ring width in base units (default: 10), at least 2 pixels on screen. Must be 0 or greater; invalid values use the default.
+.TP
+.B unlocking_color = \fICOLOR\fR
+.TQ
+.B unlocked_color = \fICOLOR\fR
+Ring colors while unlocking (default: the foreground color) and once unlocked (default: #c00000). The alpha component is ignored.
 .SH KEYBOARD SHORTCUTS
 When the clock window is active:
 .TP
@@ -74,7 +170,7 @@ When the clock window is active:
 Toggle between digital and analog modes
 .TP
 .B ⌘F
-Toggle between normal and full-screen modes
+Toggle between normal and maximised modes
 .TP
 .B ⌘S
 Toggle seconds display on/off

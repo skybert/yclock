@@ -42,4 +42,21 @@ struct ClockViewTests {
         let clockView = ClockView(frame: .zero)
         #expect(clockView.isFlipped == true)
     }
+
+    @Test("Render factor for square, non-square and zero bounds")
+    func testRenderFactor() {
+        let square = ClockView(frame: NSRect(x: 0, y: 0, width: 164, height: 164))
+        #expect(abs(square.renderFactor - 1.64) < 1e-9)
+
+        let wide = ClockView(frame: NSRect(x: 0, y: 0, width: 400, height: 200))
+        #expect(abs(wide.renderFactor - 2.0) < 1e-9)
+
+        wide.designSize = NSSize(width: 200, height: 100)
+        #expect(abs(wide.renderFactor - 2.0) < 1e-9)
+        wide.setFrameSize(NSSize(width: 100, height: 300))
+        #expect(abs(wide.renderFactor - 0.5) < 1e-9)
+        #expect(abs((wide.layer?.cornerRadius ?? 0) - Metrics.cornerRadius * 0.5) < 1e-9)
+
+        #expect(ClockView(frame: .zero).renderFactor == 0)
+    }
 }
