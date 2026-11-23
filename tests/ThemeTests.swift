@@ -511,3 +511,32 @@ struct WindowShadowTests {
         #expect(Config.parse("window_shadow = enable\nwindow_shadow = nope").windowShadow == .default)
     }
 }
+
+@Suite("Show Seconds Config Tests")
+struct ShowSecondsConfigTests {
+    @Test("Defaults to false")
+    func defaultValue() {
+        #expect(Config.default.showSeconds == false)
+        #expect(Config.parse("").showSeconds == false)
+    }
+
+    @Test("Parses true/false/1/0")
+    func values() {
+        #expect(Config.parse("show_seconds = true").showSeconds == true)
+        #expect(Config.parse("show_seconds = 1").showSeconds == true)
+        #expect(Config.parse("show_seconds = false").showSeconds == false)
+        #expect(Config.parse("show_seconds = 0").showSeconds == false)
+    }
+
+    @Test("Is case-insensitive")
+    func caseInsensitive() {
+        #expect(Config.parse("show_seconds = TRUE").showSeconds == true)
+        #expect(Config.parse("show_seconds = False").showSeconds == false)
+    }
+
+    @Test("Invalid falls back to default")
+    func invalid() {
+        #expect(Config.parse("show_seconds = yes").showSeconds == false)
+        #expect(Config.parse("show_seconds = true\nshow_seconds = nope").showSeconds == false)
+    }
+}

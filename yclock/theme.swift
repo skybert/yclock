@@ -20,6 +20,7 @@ public struct Config {
     let windowX: CGFloat?
     let windowY: CGFloat?
     let showInDock: Bool
+    let showSeconds: Bool
     let opacity: CGFloat
     let windowShadow: WindowShadow
     let geometry: ClockGeometry
@@ -40,6 +41,7 @@ public struct Config {
         windowX: nil,
         windowY: nil,
         showInDock: false,
+        showSeconds: false,
         opacity: 0.85,
         windowShadow: .default,
         geometry: .default
@@ -95,6 +97,7 @@ public struct Config {
         var windowX: CGFloat?
         var windowY: CGFloat?
         var showInDock: Bool?
+        var showSeconds: Bool?
         var opacity: CGFloat?
         var windowShadow = WindowShadow.default
         var geometry = ClockGeometry.default
@@ -152,6 +155,12 @@ public struct Config {
                 }
             case "show_in_dock":
                 showInDock = (value.lowercased() == "true" || value == "1")
+            case "show_seconds":
+                switch value.lowercased() {
+                case "true", "1": showSeconds = true
+                case "false", "0": showSeconds = false
+                default: showSeconds = nil
+                }
             case "opacity":
                 if let o = Double(value), o.isFinite {
                     opacity = CGFloat(min(max(o, 0), 1))
@@ -204,6 +213,7 @@ public struct Config {
             windowX: windowX,
             windowY: windowY,
             showInDock: showInDock ?? Config.default.showInDock,
+            showSeconds: showSeconds ?? Config.default.showSeconds,
             opacity: opacity ?? Config.default.opacity,
             windowShadow: windowShadow,
             geometry: geometry

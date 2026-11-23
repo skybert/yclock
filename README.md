@@ -94,6 +94,9 @@ font = Menlo
 # When false, app runs as an accessory and doesn't appear in Dock or Cmd+Tab
 # show_in_dock = false
 
+# Show seconds hand/display at startup (default: false)
+# show_seconds = false
+
 # --- Window ---
 
 # Window size in base units; on-screen pixels = value * scale

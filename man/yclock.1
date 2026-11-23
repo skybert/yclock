@@ -78,6 +78,9 @@ Font name for digital clock (optional). Examples: Menlo, Monaco, Courier
 .B show_in_dock = \fItrue|false\fR
 Show application in Dock and Cmd+Tab switcher (default: false). When false, the app runs as an accessory and doesn't appear in the Dock or application switcher.
 .TP
+.B show_seconds = \fItrue|false\fR
+Show seconds hand or display at startup (default: false). Also accepts 1 and 0. The \fB\-\-seconds\fR option overrides it; invalid values use the default.
+.TP
 .B width = \fINUMBER\fR
 Window width in base units (default: 100). On-screen width in pixels is width * scale.
 .TP

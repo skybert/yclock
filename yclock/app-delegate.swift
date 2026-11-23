@@ -78,7 +78,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Use command line options if provided, otherwise fall back to config
         clockView.isDigital = options.isDigital ?? config.isDigital
-        clockView.showSeconds = options.showSeconds ?? false
+        clockView.showSeconds = options.showSeconds ?? config.showSeconds
         clockView.fontName = options.fontName ?? config.fontName
 
         clockView.theme = Theme(
