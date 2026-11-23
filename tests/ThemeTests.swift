@@ -252,6 +252,48 @@ struct OpacityConfigTests {
     }
 }
 
+@Suite("Corner Radius Tests")
+struct CornerRadiusTests {
+    @Test("Config parsing")
+    func testParse() {
+        #expect(Config.default.geometry.cornerRadius == 7.3)
+        #expect(Config.parse("").geometry.cornerRadius == 7.3)
+        #expect(Config.parse("corner_radius = 0").geometry.cornerRadius == 0)
+        #expect(Config.parse("corner_radius = 12.5").geometry.cornerRadius == 12.5)
+        #expect(Config.parse("corner_radius = -1").geometry.cornerRadius == 7.3)
+        #expect(Config.parse("corner_radius = abc").geometry.cornerRadius == 7.3)
+        #expect(Config.parse("corner_radius = inf").geometry.cornerRadius == 7.3)
+    }
+
+    @Test("Default at 164x164 px is about 12 px")
+    func testDefault() {
+        let r = ClockView.effectiveCornerRadius(7.3, factor: 1.64, size: NSSize(width: 164, height: 164))
+        #expect(abs(r - 11.972) < 0.01)
+    }
+
+    @Test("Capped to half the shorter side")
+    func testCap() {
+        #expect(ClockView.effectiveCornerRadius(1000, factor: 1.64, size: NSSize(width: 164, height: 164)) == 82)
+        #expect(ClockView.effectiveCornerRadius(1000, factor: 1, size: NSSize(width: 200, height: 100)) == 50)
+        #expect(ClockView.effectiveCornerRadius(1000, factor: 1, size: NSSize(width: 100, height: 200)) == 50)
+        #expect(ClockView.effectiveCornerRadius(0, factor: 1.64, size: NSSize(width: 164, height: 164)) == 0)
+    }
+
+    @Test("Zero bounds")
+    func testZeroBounds() {
+        #expect(ClockView.effectiveCornerRadius(7.3, factor: 1, size: .zero) == 0)
+    }
+
+    @Test("View applies geometry radius")
+    func testView() {
+        let v = ClockView(frame: NSRect(x: 0, y: 0, width: 164, height: 164))
+        v.geometry.cornerRadius = 1000
+        #expect(v.layer?.cornerRadius == 82)
+        v.geometry.cornerRadius = 0
+        #expect(v.layer?.cornerRadius == 0)
+    }
+}
+
 @Suite("Hand Width Config Tests")
 struct HandWidthConfigTests {
     @Test("Defaults")

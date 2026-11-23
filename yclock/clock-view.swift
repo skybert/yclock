@@ -6,7 +6,7 @@ public class ClockView: NSView {
     var showSeconds: Bool = false
     public var theme: Theme = Theme.catppuccinMacchiato
     public var fontName: String?
-    public var geometry = Config.default.geometry { didSet { needsDisplay = true } }
+    public var geometry = Config.default.geometry { didSet { updateCornerRadius(); needsDisplay = true } }
     public var designSize = NSSize(width: Config.default.width, height: Config.default.height) {
         didSet { updateCornerRadius(); needsDisplay = true }
     }
@@ -24,8 +24,13 @@ public class ClockView: NSView {
         updateCornerRadius()
     }
 
+    static func effectiveCornerRadius(_ baseRadius: CGFloat, factor: CGFloat, size: NSSize) -> CGFloat {
+        max(0, min(baseRadius * factor, min(size.width, size.height) / 2))
+    }
+
     func updateCornerRadius() {
-        layer?.cornerRadius = Metrics.cornerRadius * renderFactor
+        layer?.cornerRadius = Self.effectiveCornerRadius(geometry.cornerRadius, factor: renderFactor, size: bounds.size)
+        window?.invalidateShadow()
     }
 
     public override func layout() {

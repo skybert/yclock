@@ -86,6 +86,9 @@ Minute hand width in base units (default: 2.4). Must be 0 or greater; invalid va
 .TP
 .B second_hand_width = \fINUMBER\fR
 Second hand width in base units (default: 1.2). Must be 0 or greater; invalid values use the default.
+.TP
+.B corner_radius = \fINUMBER\fR
+Window corner radius in base units (default: 7.3). Must be 0 or greater; invalid values use the default. The radius is capped at half the shorter window side, so a very large value (e.g. 1000) makes a square window round and a non-square window a capsule.
 .SH KEYBOARD SHORTCUTS
 When the clock window is active:
 .TP
