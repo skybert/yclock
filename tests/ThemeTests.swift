@@ -431,3 +431,46 @@ struct MarkTierTests {
         #expect(c.foreground == Config.parseColor("#444444"))
     }
 }
+
+@Suite("Mark Size Config Tests")
+struct MarkSizeConfigTests {
+    @Test("Defaults")
+    func testDefaults() {
+        let g = Config.parse("").geometry
+        #expect(g.markSize(.minute) == MarkSize(width: 1.2, length: 1.2))
+        #expect(g.markSize(.hour) == MarkSize(width: 1.2, length: 4.4))
+        #expect(g.markSize(.quarter) == MarkSize(width: 1.2, length: 4.4))
+        #expect(g.markInset == 2.2)
+    }
+
+    @Test("Size syntaxes", arguments: [
+        ("1.2x4.4", 1.2, 4.4), ("100x100", 100, 100), ("100:100", 100, 100),
+        ("100 : 100", 100, 100), ("2 x 3", 2, 3), ("  2,3  ", 2, 3),
+        ("1.2", 1.2, 1.2), (".5", 0.5, 0.5), ("3.", 3, 3), ("-3", 3, 3), ("0x4", 0, 4),
+    ])
+    func testSyntax(input: String, w: Double, l: Double) {
+        #expect(Config.parseSize(input) == MarkSize(width: CGFloat(w), length: CGFloat(l)))
+    }
+
+    @Test("Invalid sizes", arguments: ["abc", "1x2x3", "", "   ", "x", ".", "1..2x3"])
+    func testInvalid(input: String) {
+        #expect(Config.parseSize(input) == nil)
+    }
+
+    @Test("Per-tier keys and fallback")
+    func testKeys() {
+        let g = Config.parse("quarter_mark_size = 2x6\nhour_mark_size = 3\nminute_mark_size = bad").geometry
+        #expect(g.markSize(.quarter) == MarkSize(width: 2, length: 6))
+        #expect(g.markSize(.hour) == MarkSize(width: 3, length: 3))
+        #expect(g.markSize(.minute) == .minuteDefault)
+    }
+
+    @Test("mark_inset")
+    func testInset() {
+        #expect(Config.parse("mark_inset = 5.5").geometry.markInset == 5.5)
+        #expect(Config.parse("mark_inset = 0").geometry.markInset == 0)
+        for v in ["-1", "abc", "inf", ""] {
+            #expect(Config.parse("mark_inset = \(v)").geometry.markInset == 2.2)
+        }
+    }
+}

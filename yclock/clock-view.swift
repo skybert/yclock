@@ -202,11 +202,16 @@ public class ClockView: NSView {
     }
 
     func drawMark(at center: NSPoint, radius: CGFloat, index: Int, k: CGFloat) {
+        let size = geometry.markSize(MarkTier.of(minute: index))
+        guard size.width > 0, size.length > 0 else { return }
         let angle = CGFloat(index) * .pi / 30 - .pi / 2
+        let outer = radius - geometry.markInset * k
+        let inner = outer - size.length * k
         let path = NSBezierPath()
-        path.move(to: NSPoint(x: center.x + cos(angle) * radius * 0.85, y: center.y + sin(angle) * radius * 0.85))
-        path.line(to: NSPoint(x: center.x + cos(angle) * radius * 0.95, y: center.y + sin(angle) * radius * 0.95))
-        path.lineWidth = Metrics.tickLineWidth * k
+        path.move(to: NSPoint(x: center.x + cos(angle) * inner, y: center.y + sin(angle) * inner))
+        path.line(to: NSPoint(x: center.x + cos(angle) * outer, y: center.y + sin(angle) * outer))
+        path.lineWidth = size.width * k
+        path.lineCapStyle = .butt
         path.stroke()
     }
 

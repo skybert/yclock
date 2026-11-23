@@ -161,6 +161,14 @@ public struct Config {
                 if let v = parseNonNegative(value) { geometry.circleWidth = v }
             case "clock_size":
                 if let v = parseNonNegative(value), v > 0 { geometry.clockSize = v }
+            case "minute_mark_size":
+                if let v = parseSize(value) { geometry.minuteMarkSize = v }
+            case "hour_mark_size":
+                if let v = parseSize(value) { geometry.hourMarkSize = v }
+            case "quarter_mark_size":
+                if let v = parseSize(value) { geometry.quarterMarkSize = v }
+            case "mark_inset":
+                if let v = parseNonNegative(value) { geometry.markInset = v }
             default:
                 break
             }
@@ -193,6 +201,18 @@ public struct Config {
     static func parseNonNegative(_ value: String) -> CGFloat? {
         guard let v = Double(value), v.isFinite, v >= 0 else { return nil }
         return CGFloat(v)
+    }
+
+    /// Parses "W", or "W<sep>L" with any run of non-numeric characters as separator.
+    public static func parseSize(_ value: String) -> MarkSize? {
+        let tokens = value.split(whereSeparator: { !($0.isASCII && ($0.isNumber || $0 == ".")) })
+        guard tokens.count == 1 || tokens.count == 2 else { return nil }
+        var nums: [CGFloat] = []
+        for t in tokens {
+            guard let v = Double(t), v.isFinite, v >= 0 else { return nil }
+            nums.append(CGFloat(v))
+        }
+        return MarkSize(width: nums[0], length: nums.last!)
     }
 
     public static func parseColor(_ value: String) -> NSColor? {
@@ -286,12 +306,28 @@ public struct Config {
 public enum Metrics {
     static let clockDiameter: CGFloat = 87.8
     static let circleLineWidth: CGFloat = 1.2
-    static let tickLineWidth: CGFloat = 1.2
+    static let markWidth: CGFloat = 1.2
+    static let markLength: CGFloat = 4.4
+    static let markInset: CGFloat = 2.2
     static let hourHandWidth: CGFloat = 3.7
     static let minuteHandWidth: CGFloat = 2.4
     static let secondHandWidth: CGFloat = 1.2
     static let centerDotRadius: CGFloat = 3.0
     static let cornerRadius: CGFloat = 7.3
+}
+
+/// Mark size in base units: width is tangential, length is radial.
+public struct MarkSize: Equatable {
+    public var width: CGFloat
+    public var length: CGFloat
+
+    public init(width: CGFloat, length: CGFloat) {
+        self.width = width
+        self.length = length
+    }
+
+    public static let `default` = MarkSize(width: Metrics.markWidth, length: Metrics.markLength)
+    public static let minuteDefault = MarkSize(width: Metrics.markWidth, length: Metrics.markWidth)
 }
 
 /// Config-driven geometry in base units; defaults equal `Metrics`.
@@ -302,6 +338,18 @@ public struct ClockGeometry: Equatable {
     public var cornerRadius: CGFloat = Metrics.cornerRadius
     public var clockSize: CGFloat = Metrics.clockDiameter
     public var circleWidth: CGFloat = Metrics.circleLineWidth
+    public var minuteMarkSize = MarkSize.minuteDefault
+    public var hourMarkSize = MarkSize.default
+    public var quarterMarkSize = MarkSize.default
+    public var markInset: CGFloat = Metrics.markInset
+
+    public func markSize(_ tier: MarkTier) -> MarkSize {
+        switch tier {
+        case .minute: return minuteMarkSize
+        case .hour: return hourMarkSize
+        case .quarter: return quarterMarkSize
+        }
+    }
 
     public static let `default` = ClockGeometry()
 }

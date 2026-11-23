@@ -107,6 +107,16 @@ Color of the hour marks at the other multiples of 5 minutes (default: the \fBfor
 .TP
 .B minute_mark_color = \fI#RRGGBB[AA]\fR
 Color of the minute marks at all remaining minute positions (default: the \fBforeground\fR color with alpha 00, i.e. hidden). Invalid values use the default. Each position belongs to its highest tier only, so hiding a quarter mark does not show an hour mark in its place.
+.TP
+.B quarter_mark_size = \fIW\fRx\fIL\fR
+.TQ
+.B hour_mark_size = \fIW\fRx\fIL\fR
+.TQ
+.B minute_mark_size = \fIW\fRx\fIL\fR
+Size of the marks of each tier in base units (defaults: 1.2x4.4 for hour and quarter, 1.2 for minute). \fIW\fR is the width along the circle and \fIL\fR the length towards the centre. The value is one or two numbers (fractions allowed, e.g. \fB.5\fR) separated by any run of non-numeric characters, so \fB1.2x4.4\fR, \fB1.2:4.4\fR and \fB1.2 x 4.4\fR are equivalent. A single number \fIN\fR means \fINxN\fR. A mark with a zero width or length is not drawn. More than two numbers, no numbers, or other invalid values use the default.
+.TP
+.B mark_inset = \fINUMBER\fR
+Distance in base units from the clock circle to the outer end of the marks (default: 2.2). A mark spans from \fIinset + L\fR to \fIinset\fR inside the circle radius. Must be 0 or greater; invalid values use the default.
 .SH KEYBOARD SHORTCUTS
 When the clock window is active:
 .TP

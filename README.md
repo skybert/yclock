@@ -113,6 +113,16 @@ font = Menlo
 # Minute marks (all other positions); default: the foreground color, hidden
 # minute_mark_color = #cad3f500
 
+# Mark sizes WxL in base units (defaults: 1.2x4.4 for hour and quarter, 1.2 for minute)
+# W is the width along the circle, L the length towards the centre
+# Two numbers >= 0 with any non-numeric separator (1.2x4.4, 1.2:4.4); a single number N means NxN
+# quarter_mark_size = 1.2x4.4
+# hour_mark_size = 1.2x4.4
+# minute_mark_size = 1.2
+
+# Distance from the clock circle to the outer end of the marks, must be >= 0 (default: 2.2)
+# mark_inset = 2.2
+
 # Circle line width in base units, must be >= 0 (default: 1.2); 0 hides the circle
 # circle_width = 1.2
 ```
