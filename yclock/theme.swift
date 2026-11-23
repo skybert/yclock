@@ -11,6 +11,7 @@ public struct Config {
     let windowX: CGFloat?
     let windowY: CGFloat?
     let showInDock: Bool
+    let opacity: CGFloat
 
     public static let `default` = Config(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
@@ -22,7 +23,8 @@ public struct Config {
         fontName: nil,
         windowX: nil,
         windowY: nil,
-        showInDock: false
+        showInDock: false,
+        opacity: 0.85
     )
 
     public static func load() -> Config {
@@ -70,6 +72,7 @@ public struct Config {
         var windowX: CGFloat?
         var windowY: CGFloat?
         var showInDock: Bool?
+        var opacity: CGFloat?
 
         for line in contents.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -112,6 +115,10 @@ public struct Config {
                 }
             case "show_in_dock":
                 showInDock = (value.lowercased() == "true" || value == "1")
+            case "opacity":
+                if let o = Double(value), o.isFinite {
+                    opacity = CGFloat(min(max(o, 0), 1))
+                }
             default:
                 break
             }
@@ -127,7 +134,8 @@ public struct Config {
             fontName: fontName ?? Config.default.fontName,
             windowX: windowX,
             windowY: windowY,
-            showInDock: showInDock ?? Config.default.showInDock
+            showInDock: showInDock ?? Config.default.showInDock,
+            opacity: opacity ?? Config.default.opacity
         )
     }
 

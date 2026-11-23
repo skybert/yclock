@@ -62,7 +62,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         window.level = .floating
         window.isOpaque = false
-        window.alphaValue = 0.85
+        window.alphaValue = config.opacity
         window.backgroundColor = NSColor.clear
         window.isMovableByWindowBackground = true
 

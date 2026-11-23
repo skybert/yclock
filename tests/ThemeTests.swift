@@ -205,3 +205,32 @@ struct WindowPositionTests {
         }
     }
 }
+
+@Suite("Opacity Config Tests")
+struct OpacityConfigTests {
+    @Test("Default opacity is 0.85")
+    func testDefault() {
+        #expect(Config.default.opacity == 0.85)
+        #expect(Config.parse("").opacity == 0.85)
+    }
+
+    @Test("Parses opacity value")
+    func testParse() {
+        #expect(Config.parse("opacity = 0.5").opacity == 0.5)
+        #expect(Config.parse("opacity=1").opacity == 1.0)
+        #expect(Config.parse("opacity = 0").opacity == 0.0)
+    }
+
+    @Test("Clamps out-of-range opacity")
+    func testClamp() {
+        #expect(Config.parse("opacity = 1.5").opacity == 1.0)
+        #expect(Config.parse("opacity = -0.3").opacity == 0.0)
+    }
+
+    @Test("Invalid opacity falls back to default")
+    func testInvalid() {
+        #expect(Config.parse("opacity = abc").opacity == 0.85)
+        #expect(Config.parse("opacity = nan").opacity == 0.85)
+        #expect(Config.parse("opacity =").opacity == 0.85)
+    }
+}

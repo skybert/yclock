@@ -82,6 +82,9 @@ font = Menlo
 # Show app in Dock and Cmd+Tab switcher (default: false)
 # When false, app runs as an accessory and doesn't appear in Dock or Cmd+Tab
 # show_in_dock = false
+
+# Window opacity, 0.0 (transparent) to 1.0 (opaque), applies to the whole window (default: 0.85)
+# opacity = 0.85
 ```
 
 ## Requirements
