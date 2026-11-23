@@ -10,7 +10,7 @@ EXECUTABLE = $(MACOS_DIR)/$(APP_NAME)
 INSTALL_DIR = /Applications
 MAN_DIR = ~/.local/share/man/man1
 
-SOURCES = yclock/main.swift yclock/app-delegate.swift yclock/clock-view.swift yclock/theme.swift
+SOURCES = yclock/main.swift yclock/app-delegate.swift yclock/clock-view.swift yclock/theme.swift yclock/unlock.swift
 SWIFT_FLAGS = -O
 
 build: $(EXECUTABLE)
