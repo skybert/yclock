@@ -146,7 +146,7 @@ public class ClockView: NSView {
     func drawAnalogClock(hour: Int, minute: Int, second: Int) {
         let center = NSPoint(x: bounds.midX, y: bounds.midY)
         let k = renderFactor
-        let radius = Metrics.clockDiameter * k / 2
+        let radius = geometry.clockSize * k / 2
 
         // Draw clock face
         theme.foreground.setStroke()

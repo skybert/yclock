@@ -320,3 +320,26 @@ struct HandWidthConfigTests {
         #expect(Config.parse("hour_hand_width = nan").geometry.hourHandWidth == 3.7)
     }
 }
+
+@Suite("Clock Size Config Tests")
+struct ClockSizeConfigTests {
+    @Test("Default")
+    func testDefault() {
+        #expect(Config.default.geometry.clockSize == 87.8)
+        #expect(Config.parse("").geometry.clockSize == 87.8)
+        #expect(ClockView(frame: .zero).geometry.clockSize == 87.8)
+    }
+
+    @Test("Parses positive and fractional")
+    func testParse() {
+        #expect(Config.parse("clock_size = 60").geometry.clockSize == 60)
+        #expect(Config.parse("clock_size=120.5").geometry.clockSize == 120.5)
+    }
+
+    @Test("Zero, negative, non-finite and invalid fall back")
+    func testInvalid() {
+        for v in ["0", "-5", "abc", "inf", "nan", ""] {
+            #expect(Config.parse("clock_size = \(v)").geometry.clockSize == 87.8)
+        }
+    }
+}

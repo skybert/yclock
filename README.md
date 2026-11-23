@@ -97,6 +97,10 @@ font = Menlo
 # Window corner radius in base units, must be >= 0 (default: 7.3)
 # Capped at half the shorter side: a large value (e.g. 1000) makes the window round/capsule
 # corner_radius = 7.3
+
+# Clock circle diameter in base units, must be > 0 (default: 87.8)
+# With the default 100x100 window this leaves a small margin; larger values are clipped
+# clock_size = 87.8
 ```
 
 ## Requirements

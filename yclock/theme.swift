@@ -137,6 +137,8 @@ public struct Config {
                 if let v = parseNonNegative(value) { geometry.secondHandWidth = v }
             case "corner_radius":
                 if let v = parseNonNegative(value) { geometry.cornerRadius = v }
+            case "clock_size":
+                if let v = parseNonNegative(value), v > 0 { geometry.clockSize = v }
             default:
                 break
             }
@@ -269,6 +271,7 @@ public struct ClockGeometry: Equatable {
     public var minuteHandWidth: CGFloat = Metrics.minuteHandWidth
     public var secondHandWidth: CGFloat = Metrics.secondHandWidth
     public var cornerRadius: CGFloat = Metrics.cornerRadius
+    public var clockSize: CGFloat = Metrics.clockDiameter
 
     public static let `default` = ClockGeometry()
 }
