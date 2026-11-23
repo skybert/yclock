@@ -6,13 +6,41 @@ public class ClockView: NSView {
     var showSeconds: Bool = false
     public var theme: Theme = Theme.catppuccinMacchiato
     public var fontName: String?
+    public var geometry = Config.default.geometry { didSet { updateCornerRadius(); needsDisplay = true } }
+    public var designSize = NSSize(width: Config.default.width, height: Config.default.height) {
+        didSet { updateCornerRadius(); needsDisplay = true }
+    }
+
+    var renderFactor: CGFloat {
+        guard designSize.width > 0, designSize.height > 0 else { return 1 }
+        return min(bounds.width / designSize.width, bounds.height / designSize.height)
+    }
 
     public override init(frame: NSRect) {
         super.init(frame: frame)
         setupTimer()
         self.wantsLayer = true
-        self.layer?.cornerRadius = 12
         self.layer?.masksToBounds = true
+        updateCornerRadius()
+    }
+
+    static func effectiveCornerRadius(_ baseRadius: CGFloat, factor: CGFloat, size: NSSize) -> CGFloat {
+        max(0, min(baseRadius * factor, min(size.width, size.height) / 2))
+    }
+
+    func updateCornerRadius() {
+        layer?.cornerRadius = Self.effectiveCornerRadius(geometry.cornerRadius, factor: renderFactor, size: bounds.size)
+        window?.invalidateShadow()
+    }
+
+    public override func layout() {
+        super.layout()
+        updateCornerRadius()
+    }
+
+    public override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        updateCornerRadius()
     }
 
     required init?(coder: NSCoder) {
@@ -117,53 +145,46 @@ public class ClockView: NSView {
 
     func drawAnalogClock(hour: Int, minute: Int, second: Int) {
         let center = NSPoint(x: bounds.midX, y: bounds.midY)
-        let radius = min(bounds.width, bounds.height) / 2 - 10
+        let k = renderFactor
+        let radius = geometry.clockSize * k / 2
 
         // Draw clock face
-        theme.foreground.setStroke()
-        let circlePath = NSBezierPath(ovalIn: NSRect(x: center.x - radius,
-                                                      y: center.y - radius,
-                                                      width: radius * 2,
-                                                      height: radius * 2))
-        circlePath.lineWidth = 2
-        circlePath.stroke()
-
-        // Draw hour markers
-        for h in 0..<12 {
-            let angle = CGFloat(h) * .pi / 6 - .pi / 2
-            let innerRadius = radius * 0.85
-            let outerRadius = radius * 0.95
-
-            let x1 = center.x + cos(angle) * innerRadius
-            let y1 = center.y + sin(angle) * innerRadius
-            let x2 = center.x + cos(angle) * outerRadius
-            let y2 = center.y + sin(angle) * outerRadius
-
-            let markerPath = NSBezierPath()
-            markerPath.move(to: NSPoint(x: x1, y: y1))
-            markerPath.line(to: NSPoint(x: x2, y: y2))
-            markerPath.lineWidth = 2
-            markerPath.stroke()
+        if theme.circle.alphaComponent > 0 && geometry.circleWidth > 0 {
+            theme.circle.setStroke()
+            let circlePath = NSBezierPath(ovalIn: NSRect(x: center.x - radius,
+                                                          y: center.y - radius,
+                                                          width: radius * 2,
+                                                          height: radius * 2))
+            circlePath.lineWidth = geometry.circleWidth * k
+            circlePath.stroke()
         }
+        for i in 0..<60 {
+            let color = theme.markColor(MarkTier.of(minute: i))
+            guard color.alphaComponent > 0 else { continue }
+            color.setStroke()
+            color.setFill()
+            drawMark(at: center, radius: radius, index: i, k: k)
+        }
+        theme.foreground.setStroke()
 
         // Draw hour hand
         let hourAngle = (CGFloat(hour % 12) + CGFloat(minute) / 60) * .pi / 6 - .pi / 2
-        drawHand(at: center, angle: hourAngle, length: radius * 0.5, width: 6)
+        drawHand(at: center, angle: hourAngle, length: radius * 0.5, width: geometry.hourHandWidth * k)
 
         // Draw minute hand
         let minuteAngle = (CGFloat(minute) + CGFloat(second) / 60) * .pi / 30 - .pi / 2
-        drawHand(at: center, angle: minuteAngle, length: radius * 0.7, width: 4)
+        drawHand(at: center, angle: minuteAngle, length: radius * 0.7, width: geometry.minuteHandWidth * k)
 
         // Draw second hand
         if showSeconds {
             let secondAngle = CGFloat(second) * .pi / 30 - .pi / 2
             theme.secondHand.setStroke()
-            drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: 2)
+            drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: geometry.secondHandWidth * k)
         }
 
         // Draw center dot
         theme.foreground.setFill()
-        let dotRadius: CGFloat = 5
+        let dotRadius = Metrics.centerDotRadius * k
         let dotRect = NSRect(x: center.x - dotRadius,
                             y: center.y - dotRadius,
                             width: dotRadius * 2,
@@ -181,7 +202,31 @@ public class ClockView: NSView {
         needsDisplay = true
     }
 
+    func drawMark(at center: NSPoint, radius: CGFloat, index: Int, k: CGFloat) {
+        let size = geometry.markSize(MarkTier.of(minute: index))
+        guard size.width > 0, size.length > 0 else { return }
+        let angle = CGFloat(index) * .pi / 30 - .pi / 2
+        let outer = radius - geometry.markInset * k
+        if geometry.markStyle == .dots {
+            let dot = NSBezierPath(ovalIn: NSRect(x: -size.length * k / 2, y: -size.width * k / 2,
+                                                  width: size.length * k, height: size.width * k))
+            var t = AffineTransform(translationByX: center.x + cos(angle) * outer, byY: center.y + sin(angle) * outer)
+            t.rotate(byRadians: angle)
+            dot.transform(using: t)
+            dot.fill()
+            return
+        }
+        let inner = outer - size.length * k
+        let path = NSBezierPath()
+        path.move(to: NSPoint(x: center.x + cos(angle) * inner, y: center.y + sin(angle) * inner))
+        path.line(to: NSPoint(x: center.x + cos(angle) * outer, y: center.y + sin(angle) * outer))
+        path.lineWidth = size.width * k
+        path.lineCapStyle = .butt
+        path.stroke()
+    }
+
     func drawHand(at center: NSPoint, angle: CGFloat, length: CGFloat, width: CGFloat) {
+        guard width > 0 else { return }
         let handPath = NSBezierPath()
         handPath.move(to: center)
         let endX = center.x + cos(angle) * length

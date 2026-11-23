@@ -28,7 +28,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         let config = Config.load()
-        let windowRect = NSRect(x: 100, y: 100, width: config.width, height: config.height)
+        let windowRect = NSRect(x: 100, y: 100, width: config.width * config.scale, height: config.height * config.scale)
 
         // Use command line option if provided, otherwise fall back to config
         let showInDock = options.showInDock ?? config.showInDock
@@ -62,22 +62,33 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         window.level = .floating
         window.isOpaque = false
-        window.alphaValue = 0.85
+        window.alphaValue = config.opacity
+        switch config.windowShadow {
+        case .enable: window.hasShadow = true
+        case .disable: window.hasShadow = false
+        case .default: break
+        }
         window.backgroundColor = NSColor.clear
         window.isMovableByWindowBackground = true
 
         clockView = ClockView(frame: window.contentView!.bounds)
+        clockView.designSize = NSSize(width: config.width, height: config.height)
+        clockView.geometry = config.geometry
         clockView.autoresizingMask = [.width, .height]
 
         // Use command line options if provided, otherwise fall back to config
         clockView.isDigital = options.isDigital ?? config.isDigital
-        clockView.showSeconds = options.showSeconds ?? false
+        clockView.showSeconds = options.showSeconds ?? config.showSeconds
         clockView.fontName = options.fontName ?? config.fontName
 
         clockView.theme = Theme(
             background: config.background,
             foreground: config.foreground,
-            secondHand: config.secondHand
+            secondHand: config.secondHand,
+            circle: config.circleColor,
+            minuteMark: config.minuteMarkColor,
+            hourMark: config.hourMarkColor,
+            quarterMark: config.quarterMarkColor
         )
         window.contentView = clockView
         window.makeKeyAndOrderFront(nil)
