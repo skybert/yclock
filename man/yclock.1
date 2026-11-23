@@ -33,6 +33,9 @@ Examples: Menlo, Monaco, "Courier New", Helvetica
 .B \-\-new-instance
 Start a new instance even if one is already running. Without it, launching yclock while another instance runs activates that instance and exits; other options are ignored.
 .TP
+.B \-\-quit
+Ask the running instance to quit and exit; never starts the app. Exits 0 on success or if no instance is running, 1 if the instance did not quit within 3 seconds. Other options are ignored.
+.TP
 .B \-\-help
 Display help message and exit
 .SH CONFIGURATION

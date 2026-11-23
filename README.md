@@ -41,6 +41,7 @@ Options:
   --show-in-dock    Show app in Dock and Cmd+Tab switcher
   --font-name NAME  Specify font name for digital clock
   --new-instance    Start a new instance even if one is already running
+  --quit            Quit the running instance and exit
   --help            Show this help message
 
 Examples:
@@ -51,7 +52,7 @@ Examples:
   yclock --show-in-dock
 ```
 
-Only one instance runs at a time: launching yclock again activates the running one and exits, ignoring any other options. Use `--new-instance` to start another.
+Only one instance runs at a time: launching yclock again activates the running one and exits, ignoring any other options. Use `--new-instance` to start another. `--quit` asks the running instance to quit (exit 0; also 0 if none is running, 1 if it did not quit within 3 s) and ignores all other options.
 
 ## Keyboard shortcuts
 

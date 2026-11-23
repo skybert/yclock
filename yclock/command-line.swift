@@ -11,6 +11,7 @@ public func parseCommandLine(arguments: [String]) throws -> CommandLineOptions {
     var fontName: String?
     var showInDock: Bool?
     var newInstance = false
+    var quit = false
     var i = 1 // Start from 1 to skip program name
     
     while i < arguments.count {
@@ -32,6 +33,9 @@ public func parseCommandLine(arguments: [String]) throws -> CommandLineOptions {
         case "--new-instance":
             newInstance = true
             i += 1
+        case "--quit":
+            quit = true
+            i += 1
         case "--font-name":
             // Check if there's a next argument
             guard i + 1 < arguments.count else {
@@ -48,6 +52,7 @@ public func parseCommandLine(arguments: [String]) throws -> CommandLineOptions {
     
     var options = CommandLineOptions(isDigital: isDigital, showSeconds: showSeconds, fontName: fontName, showInDock: showInDock)
     options.newInstance = newInstance
+    options.quit = quit
     return options
 }
 
@@ -65,6 +70,7 @@ public func printHelp() {
       --show-in-dock    Show app in Dock and Cmd+Tab switcher
       --font-name NAME  Specify font name for digital clock
       --new-instance    Start a new instance even if one is already running
+      --quit            Quit the running instance and exit
       --help            Show this help message
     
     Examples:

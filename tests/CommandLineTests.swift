@@ -18,6 +18,13 @@ struct CommandLineTests {
         #expect(try parseCommandLine(arguments: ["yclock", "--new-instance", "--digital"]).newInstance == true)
     }
 
+    @Test("Parse --quit")
+    func testQuitFlag() throws {
+        #expect(try parseCommandLine(arguments: ["yclock"]).quit == false)
+        let options = try parseCommandLine(arguments: ["yclock", "--quit", "--new-instance", "--digital"])
+        #expect(options.quit == true)
+    }
+
     @Test("Select other instance by bundle ID, excluding own PID")
     func testSelectByBundleID() {
         let me = RunningInstance(pid: 1, bundleID: "net.skybert.yclock", executableName: "yclock")
