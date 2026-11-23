@@ -88,6 +88,11 @@ font = Menlo
 
 # Window opacity, 0.0 (transparent) to 1.0 (opaque), applies to the whole window (default: 0.85)
 # opacity = 0.85
+
+# Hand widths in base units, must be >= 0 (defaults: 3.7, 2.4, 1.2)
+# hour_hand_width = 3.7
+# minute_hand_width = 2.4
+# second_hand_width = 1.2
 ```
 
 ## Requirements

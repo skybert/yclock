@@ -6,6 +6,7 @@ public class ClockView: NSView {
     var showSeconds: Bool = false
     public var theme: Theme = Theme.catppuccinMacchiato
     public var fontName: String?
+    public var geometry = Config.default.geometry { didSet { needsDisplay = true } }
     public var designSize = NSSize(width: Config.default.width, height: Config.default.height) {
         didSet { updateCornerRadius(); needsDisplay = true }
     }
@@ -171,17 +172,17 @@ public class ClockView: NSView {
 
         // Draw hour hand
         let hourAngle = (CGFloat(hour % 12) + CGFloat(minute) / 60) * .pi / 6 - .pi / 2
-        drawHand(at: center, angle: hourAngle, length: radius * 0.5, width: Metrics.hourHandWidth * k)
+        drawHand(at: center, angle: hourAngle, length: radius * 0.5, width: geometry.hourHandWidth * k)
 
         // Draw minute hand
         let minuteAngle = (CGFloat(minute) + CGFloat(second) / 60) * .pi / 30 - .pi / 2
-        drawHand(at: center, angle: minuteAngle, length: radius * 0.7, width: Metrics.minuteHandWidth * k)
+        drawHand(at: center, angle: minuteAngle, length: radius * 0.7, width: geometry.minuteHandWidth * k)
 
         // Draw second hand
         if showSeconds {
             let secondAngle = CGFloat(second) * .pi / 30 - .pi / 2
             theme.secondHand.setStroke()
-            drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: Metrics.secondHandWidth * k)
+            drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: geometry.secondHandWidth * k)
         }
 
         // Draw center dot
@@ -205,6 +206,7 @@ public class ClockView: NSView {
     }
 
     func drawHand(at center: NSPoint, angle: CGFloat, length: CGFloat, width: CGFloat) {
+        guard width > 0 else { return }
         let handPath = NSBezierPath()
         handPath.move(to: center)
         let endX = center.x + cos(angle) * length

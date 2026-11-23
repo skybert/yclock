@@ -251,3 +251,30 @@ struct OpacityConfigTests {
         #expect(Config.parse("opacity =").opacity == 0.85)
     }
 }
+
+@Suite("Hand Width Config Tests")
+struct HandWidthConfigTests {
+    @Test("Defaults")
+    func testDefaults() {
+        for g in [Config.default.geometry, Config.parse("").geometry, ClockView(frame: .zero).geometry] {
+            #expect(g.hourHandWidth == 3.7)
+            #expect(g.minuteHandWidth == 2.4)
+            #expect(g.secondHandWidth == 1.2)
+        }
+    }
+
+    @Test("Parses widths, including zero and fractions")
+    func testParse() {
+        let g = Config.parse("hour_hand_width = 5\nminute_hand_width=0\nsecond_hand_width = 0.5").geometry
+        #expect(g.hourHandWidth == 5)
+        #expect(g.minuteHandWidth == 0)
+        #expect(g.secondHandWidth == 0.5)
+    }
+
+    @Test("Invalid or negative falls back to default")
+    func testInvalid() {
+        let g = Config.parse("hour_hand_width = -1\nminute_hand_width = abc\nsecond_hand_width = inf").geometry
+        #expect(g == ClockGeometry.default)
+        #expect(Config.parse("hour_hand_width = nan").geometry.hourHandWidth == 3.7)
+    }
+}

@@ -68,6 +68,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         clockView = ClockView(frame: window.contentView!.bounds)
         clockView.designSize = NSSize(width: config.width, height: config.height)
+        clockView.geometry = config.geometry
         clockView.autoresizingMask = [.width, .height]
 
         // Use command line options if provided, otherwise fall back to config

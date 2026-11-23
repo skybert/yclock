@@ -13,6 +13,7 @@ public struct Config {
     let windowY: CGFloat?
     let showInDock: Bool
     let opacity: CGFloat
+    let geometry: ClockGeometry
 
     public static let `default` = Config(
         background: NSColor(red: 36/255, green: 39/255, blue: 58/255, alpha: 0.95),
@@ -26,7 +27,8 @@ public struct Config {
         windowX: nil,
         windowY: nil,
         showInDock: false,
-        opacity: 0.85
+        opacity: 0.85,
+        geometry: .default
     )
 
     public static func load() -> Config {
@@ -76,6 +78,7 @@ public struct Config {
         var windowY: CGFloat?
         var showInDock: Bool?
         var opacity: CGFloat?
+        var geometry = ClockGeometry.default
 
         for line in contents.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -126,6 +129,12 @@ public struct Config {
                 if let o = Double(value), o.isFinite {
                     opacity = CGFloat(min(max(o, 0), 1))
                 }
+            case "hour_hand_width":
+                if let v = parseNonNegative(value) { geometry.hourHandWidth = v }
+            case "minute_hand_width":
+                if let v = parseNonNegative(value) { geometry.minuteHandWidth = v }
+            case "second_hand_width":
+                if let v = parseNonNegative(value) { geometry.secondHandWidth = v }
             default:
                 break
             }
@@ -143,8 +152,14 @@ public struct Config {
             windowX: windowX,
             windowY: windowY,
             showInDock: showInDock ?? Config.default.showInDock,
-            opacity: opacity ?? Config.default.opacity
+            opacity: opacity ?? Config.default.opacity,
+            geometry: geometry
         )
+    }
+
+    static func parseNonNegative(_ value: String) -> CGFloat? {
+        guard let v = Double(value), v.isFinite, v >= 0 else { return nil }
+        return CGFloat(v)
     }
 
     public static func parseColor(_ value: String) -> NSColor? {
@@ -244,6 +259,15 @@ public enum Metrics {
     static let secondHandWidth: CGFloat = 1.2
     static let centerDotRadius: CGFloat = 3.0
     static let cornerRadius: CGFloat = 7.3
+}
+
+/// Config-driven geometry in base units; defaults equal `Metrics`.
+public struct ClockGeometry: Equatable {
+    public var hourHandWidth: CGFloat = Metrics.hourHandWidth
+    public var minuteHandWidth: CGFloat = Metrics.minuteHandWidth
+    public var secondHandWidth: CGFloat = Metrics.secondHandWidth
+
+    public static let `default` = ClockGeometry()
 }
 
 public struct Theme {
