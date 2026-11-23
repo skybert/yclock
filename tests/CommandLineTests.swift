@@ -12,6 +12,36 @@ struct CommandLineTests {
         #expect(options.showSeconds == nil)
     }
     
+    @Test("Parse --new-instance")
+    func testNewInstanceFlag() throws {
+        #expect(try parseCommandLine(arguments: ["yclock"]).newInstance == false)
+        #expect(try parseCommandLine(arguments: ["yclock", "--new-instance", "--digital"]).newInstance == true)
+    }
+
+    @Test("Parse --quit")
+    func testQuitFlag() throws {
+        #expect(try parseCommandLine(arguments: ["yclock"]).quit == false)
+        let options = try parseCommandLine(arguments: ["yclock", "--quit", "--new-instance", "--digital"])
+        #expect(options.quit == true)
+    }
+
+    @Test("Select other instance by bundle ID, excluding own PID")
+    func testSelectByBundleID() {
+        let me = RunningInstance(pid: 1, bundleID: "net.skybert.yclock", executableName: "yclock")
+        let other = RunningInstance(pid: 2, bundleID: "net.skybert.yclock", executableName: "yclock")
+        let unrelated = RunningInstance(pid: 3, bundleID: "com.apple.finder", executableName: "Finder")
+        #expect(selectOtherInstance(from: [me, unrelated, other], ownPID: 1, bundleID: "net.skybert.yclock") == other)
+        #expect(selectOtherInstance(from: [me, unrelated], ownPID: 1, bundleID: "net.skybert.yclock") == nil)
+    }
+
+    @Test("Select other instance by executable name without bundle ID")
+    func testSelectByExecutableName() {
+        let other = RunningInstance(pid: 5, bundleID: nil, executableName: "yclock")
+        let unrelated = RunningInstance(pid: 6, bundleID: nil, executableName: "other")
+        #expect(selectOtherInstance(from: [unrelated, other], ownPID: 1, bundleID: nil) == other)
+        #expect(selectOtherInstance(from: [unrelated], ownPID: 1, bundleID: nil) == nil)
+    }
+
     @Test("Parse --digital sets isDigital to true")
     func testDigitalFlag() throws {
         let options = try parseCommandLine(arguments: ["yclock", "--digital"])
