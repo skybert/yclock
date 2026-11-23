@@ -40,6 +40,7 @@ Options:
   --seconds         Show seconds hand/display
   --show-in-dock    Show app in Dock and Cmd+Tab switcher
   --font-name NAME  Specify font name for digital clock
+  --new-instance    Start a new instance even if one is already running
   --help            Show this help message
 
 Examples:
@@ -49,6 +50,8 @@ Examples:
   yclock --font-name "Courier New" --seconds
   yclock --show-in-dock
 ```
+
+Only one instance runs at a time: launching yclock again activates the running one and exits, ignoring any other options. Use `--new-instance` to start another.
 
 ## Keyboard shortcuts
 

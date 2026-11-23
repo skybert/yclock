@@ -5,6 +5,7 @@ public struct CommandLineOptions {
     public var showSeconds: Bool?
     public var fontName: String?
     public var showInDock: Bool?
+    public var newInstance: Bool = false
 
     public init(isDigital: Bool? = nil, showSeconds: Bool? = nil, fontName: String? = nil, showInDock: Bool? = nil) {
         self.isDigital = isDigital
