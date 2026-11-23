@@ -6,13 +6,35 @@ public class ClockView: NSView {
     var showSeconds: Bool = false
     public var theme: Theme = Theme.catppuccinMacchiato
     public var fontName: String?
+    public var designSize = NSSize(width: Config.default.width, height: Config.default.height) {
+        didSet { updateCornerRadius(); needsDisplay = true }
+    }
+
+    var renderFactor: CGFloat {
+        guard designSize.width > 0, designSize.height > 0 else { return 1 }
+        return min(bounds.width / designSize.width, bounds.height / designSize.height)
+    }
 
     public override init(frame: NSRect) {
         super.init(frame: frame)
         setupTimer()
         self.wantsLayer = true
-        self.layer?.cornerRadius = 12
         self.layer?.masksToBounds = true
+        updateCornerRadius()
+    }
+
+    func updateCornerRadius() {
+        layer?.cornerRadius = Metrics.cornerRadius * renderFactor
+    }
+
+    public override func layout() {
+        super.layout()
+        updateCornerRadius()
+    }
+
+    public override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        updateCornerRadius()
     }
 
     required init?(coder: NSCoder) {
@@ -117,7 +139,8 @@ public class ClockView: NSView {
 
     func drawAnalogClock(hour: Int, minute: Int, second: Int) {
         let center = NSPoint(x: bounds.midX, y: bounds.midY)
-        let radius = min(bounds.width, bounds.height) / 2 - 10
+        let k = renderFactor
+        let radius = Metrics.clockDiameter * k / 2
 
         // Draw clock face
         theme.foreground.setStroke()
@@ -125,7 +148,7 @@ public class ClockView: NSView {
                                                       y: center.y - radius,
                                                       width: radius * 2,
                                                       height: radius * 2))
-        circlePath.lineWidth = 2
+        circlePath.lineWidth = Metrics.circleLineWidth * k
         circlePath.stroke()
 
         // Draw hour markers
@@ -142,28 +165,28 @@ public class ClockView: NSView {
             let markerPath = NSBezierPath()
             markerPath.move(to: NSPoint(x: x1, y: y1))
             markerPath.line(to: NSPoint(x: x2, y: y2))
-            markerPath.lineWidth = 2
+            markerPath.lineWidth = Metrics.tickLineWidth * k
             markerPath.stroke()
         }
 
         // Draw hour hand
         let hourAngle = (CGFloat(hour % 12) + CGFloat(minute) / 60) * .pi / 6 - .pi / 2
-        drawHand(at: center, angle: hourAngle, length: radius * 0.5, width: 6)
+        drawHand(at: center, angle: hourAngle, length: radius * 0.5, width: Metrics.hourHandWidth * k)
 
         // Draw minute hand
         let minuteAngle = (CGFloat(minute) + CGFloat(second) / 60) * .pi / 30 - .pi / 2
-        drawHand(at: center, angle: minuteAngle, length: radius * 0.7, width: 4)
+        drawHand(at: center, angle: minuteAngle, length: radius * 0.7, width: Metrics.minuteHandWidth * k)
 
         // Draw second hand
         if showSeconds {
             let secondAngle = CGFloat(second) * .pi / 30 - .pi / 2
             theme.secondHand.setStroke()
-            drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: 2)
+            drawHand(at: center, angle: secondAngle, length: radius * 0.9, width: Metrics.secondHandWidth * k)
         }
 
         // Draw center dot
         theme.foreground.setFill()
-        let dotRadius: CGFloat = 5
+        let dotRadius = Metrics.centerDotRadius * k
         let dotRect = NSRect(x: center.x - dotRadius,
                             y: center.y - dotRadius,
                             width: dotRadius * 2,

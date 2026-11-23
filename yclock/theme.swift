@@ -7,6 +7,7 @@ public struct Config {
     let isDigital: Bool
     let width: CGFloat
     let height: CGFloat
+    let scale: CGFloat
     let fontName: String?
     let windowX: CGFloat?
     let windowY: CGFloat?
@@ -18,8 +19,9 @@ public struct Config {
         foreground: NSColor(red: 202/255, green: 211/255, blue: 245/255, alpha: 1.0),
         secondHand: NSColor(red: 237/255, green: 135/255, blue: 150/255, alpha: 1.0),
         isDigital: false,
-        width: 164,
-        height: 164,
+        width: 100,
+        height: 100,
+        scale: 1.64,
         fontName: nil,
         windowX: nil,
         windowY: nil,
@@ -68,6 +70,7 @@ public struct Config {
         var isDigital: Bool?
         var width: CGFloat?
         var height: CGFloat?
+        var scale: CGFloat?
         var fontName: String?
         var windowX: CGFloat?
         var windowY: CGFloat?
@@ -96,12 +99,16 @@ public struct Config {
             case "mode":
                 isDigital = (value.lowercased() == "digital")
             case "width":
-                if let w = Double(value) {
+                if let w = Double(value), w.isFinite, w > 0 {
                     width = CGFloat(w)
                 }
             case "height":
-                if let h = Double(value) {
+                if let h = Double(value), h.isFinite, h > 0 {
                     height = CGFloat(h)
+                }
+            case "scale":
+                if let sc = Double(value), sc.isFinite, sc > 0 {
+                    scale = CGFloat(sc)
                 }
             case "font":
                 fontName = value
@@ -131,6 +138,7 @@ public struct Config {
             isDigital: isDigital ?? Config.default.isDigital,
             width: width ?? Config.default.width,
             height: height ?? Config.default.height,
+            scale: scale ?? Config.default.scale,
             fontName: fontName ?? Config.default.fontName,
             windowX: windowX,
             windowY: windowY,
@@ -224,6 +232,18 @@ public struct Config {
 
         return nil
     }
+}
+
+/// Analogue clock geometry in base units (design size is width x height).
+public enum Metrics {
+    static let clockDiameter: CGFloat = 87.8
+    static let circleLineWidth: CGFloat = 1.2
+    static let tickLineWidth: CGFloat = 1.2
+    static let hourHandWidth: CGFloat = 3.7
+    static let minuteHandWidth: CGFloat = 2.4
+    static let secondHandWidth: CGFloat = 1.2
+    static let centerDotRadius: CGFloat = 3.0
+    static let cornerRadius: CGFloat = 7.3
 }
 
 public struct Theme {

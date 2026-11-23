@@ -10,11 +10,28 @@ struct ConfigTests {
     func testDefaultConfig() {
         let config = Config.default
 
-        #expect(config.width == 164)
-        #expect(config.height == 164)
+        #expect(config.width == 100)
+        #expect(config.height == 100)
+        #expect(config.scale == 1.64)
         #expect(config.isDigital == false)
         #expect(config.windowX == nil)
         #expect(config.windowY == nil)
+    }
+
+    @Test("Parse scale")
+    func testParseScale() {
+        #expect(Config.parse("scale = 2.5").scale == 2.5)
+        #expect(Config.parse("scale = 0").scale == Config.default.scale)
+        #expect(Config.parse("scale = -1").scale == Config.default.scale)
+        #expect(Config.parse("scale = abc").scale == Config.default.scale)
+        #expect(Config.parse("scale = inf").scale == Config.default.scale)
+    }
+
+    @Test("Parse fractional size, invalid falls back")
+    func testParseSize() {
+        let c = Config.parse("width = 80.5\nheight = 0")
+        #expect(c.width == 80.5)
+        #expect(c.height == Config.default.height)
     }
 
     @Test("Parse color with hash")

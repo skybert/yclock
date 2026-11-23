@@ -28,7 +28,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         let config = Config.load()
-        let windowRect = NSRect(x: 100, y: 100, width: config.width, height: config.height)
+        let windowRect = NSRect(x: 100, y: 100, width: config.width * config.scale, height: config.height * config.scale)
 
         // Use command line option if provided, otherwise fall back to config
         let showInDock = options.showInDock ?? config.showInDock
@@ -67,6 +67,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         window.isMovableByWindowBackground = true
 
         clockView = ClockView(frame: window.contentView!.bounds)
+        clockView.designSize = NSSize(width: config.width, height: config.height)
         clockView.autoresizingMask = [.width, .height]
 
         // Use command line options if provided, otherwise fall back to config

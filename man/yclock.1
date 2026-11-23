@@ -61,10 +61,13 @@ Without it the color is opaque. Invalid colors fall back to the default.
 Clock mode, either "analog" or "digital" (default: analog)
 .TP
 .B width = \fINUMBER\fR
-Window width in pixels (default: 164)
+Window width in base units (default: 100). On-screen width in pixels is width * scale.
 .TP
 .B height = \fINUMBER\fR
-Window height in pixels (default: 164)
+Window height in base units (default: 100). On-screen height in pixels is height * scale.
+.TP
+.B scale = \fINUMBER\fR
+Pixels per base unit (default: 1.64). Must be greater than 0; invalid values use the default.
 .TP
 .B font = \fINAME\fR
 Font name for digital clock (optional). Examples: Menlo, Monaco, Courier

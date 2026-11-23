@@ -71,9 +71,12 @@ second_hand = #ed8796
 # Clock mode (analog or digital)
 mode = analog
 
-# Window dimensions
-width = 164
-height = 164
+# Window size in base units; on-screen pixels = value * scale
+width = 100
+height = 100
+
+# Pixels per base unit (default: 1.64)
+scale = 1.64
 
 # Font name for digital clock (optional)
 # Examples: Menlo, Monaco, Courier, Helvetica, Arial
