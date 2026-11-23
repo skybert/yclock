@@ -167,6 +167,8 @@ public struct Config {
                 if let v = parseSize(value) { geometry.hourMarkSize = v }
             case "quarter_mark_size":
                 if let v = parseSize(value) { geometry.quarterMarkSize = v }
+            case "mark_style":
+                if let v = MarkStyle(rawValue: value.lowercased()) { geometry.markStyle = v }
             case "mark_inset":
                 if let v = parseNonNegative(value) { geometry.markInset = v }
             default:
@@ -330,6 +332,10 @@ public struct MarkSize: Equatable {
     public static let minuteDefault = MarkSize(width: Metrics.markWidth, length: Metrics.markWidth)
 }
 
+public enum MarkStyle: String, Equatable {
+    case dashes, dots
+}
+
 /// Config-driven geometry in base units; defaults equal `Metrics`.
 public struct ClockGeometry: Equatable {
     public var hourHandWidth: CGFloat = Metrics.hourHandWidth
@@ -342,6 +348,7 @@ public struct ClockGeometry: Equatable {
     public var hourMarkSize = MarkSize.default
     public var quarterMarkSize = MarkSize.default
     public var markInset: CGFloat = Metrics.markInset
+    public var markStyle: MarkStyle = .dashes
 
     public func markSize(_ tier: MarkTier) -> MarkSize {
         switch tier {

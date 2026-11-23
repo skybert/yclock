@@ -120,7 +120,17 @@ font = Menlo
 # hour_mark_size = 1.2x4.4
 # minute_mark_size = 1.2
 
-# Distance from the clock circle to the outer end of the marks, must be >= 0 (default: 2.2)
+# Mark style: dashes or dots (default: dashes); a dot is a WxL ellipse, so size N gives a round dot
+# mark_style = dashes
+# Dotted face without the circle:
+#   circle_color = #cad3f500
+#   mark_style = dots
+#   minute_mark_color = #cad3f5
+#   minute_mark_size = 1
+#   hour_mark_size = 2
+#   quarter_mark_size = 3
+
+# Distance from the clock circle to the outer end of dashes or the centre of dots, must be >= 0 (default: 2.2)
 # mark_inset = 2.2
 
 # Circle line width in base units, must be >= 0 (default: 1.2); 0 hides the circle

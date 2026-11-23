@@ -115,8 +115,22 @@ Color of the minute marks at all remaining minute positions (default: the \fBfor
 .B minute_mark_size = \fIW\fRx\fIL\fR
 Size of the marks of each tier in base units (defaults: 1.2x4.4 for hour and quarter, 1.2 for minute). \fIW\fR is the width along the circle and \fIL\fR the length towards the centre. The value is one or two numbers (fractions allowed, e.g. \fB.5\fR) separated by any run of non-numeric characters, so \fB1.2x4.4\fR, \fB1.2:4.4\fR and \fB1.2 x 4.4\fR are equivalent. A single number \fIN\fR means \fINxN\fR. A mark with a zero width or length is not drawn. More than two numbers, no numbers, or other invalid values use the default.
 .TP
+.B mark_style = \fIdashes\fR|\fIdots\fR
+Style of the marks of all tiers (default: dashes, case-insensitive). A dot is a filled ellipse of \fIW\fRx\fIL\fR (width along the circle, length towards the centre) centred at the inset distance from the circle, so a single-number size \fIN\fR gives a round dot of diameter \fIN\fR. Invalid values use the default. Example of a dotted face without the circle:
+.PP
+.RS
+.nf
+circle_color = #cad3f500
+mark_style = dots
+minute_mark_color = #cad3f5
+minute_mark_size = 1
+hour_mark_size = 2
+quarter_mark_size = 3
+.fi
+.RE
+.TP
 .B mark_inset = \fINUMBER\fR
-Distance in base units from the clock circle to the outer end of the marks (default: 2.2). A mark spans from \fIinset + L\fR to \fIinset\fR inside the circle radius. Must be 0 or greater; invalid values use the default.
+Distance in base units from the clock circle to the outer end of dash marks, or to the centre of dot marks (default: 2.2). A dash spans from \fIinset + L\fR to \fIinset\fR inside the circle radius. Must be 0 or greater; invalid values use the default.
 .SH KEYBOARD SHORTCUTS
 When the clock window is active:
 .TP

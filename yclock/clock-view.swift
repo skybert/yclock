@@ -162,6 +162,7 @@ public class ClockView: NSView {
             let color = theme.markColor(MarkTier.of(minute: i))
             guard color.alphaComponent > 0 else { continue }
             color.setStroke()
+            color.setFill()
             drawMark(at: center, radius: radius, index: i, k: k)
         }
         theme.foreground.setStroke()
@@ -206,6 +207,15 @@ public class ClockView: NSView {
         guard size.width > 0, size.length > 0 else { return }
         let angle = CGFloat(index) * .pi / 30 - .pi / 2
         let outer = radius - geometry.markInset * k
+        if geometry.markStyle == .dots {
+            let dot = NSBezierPath(ovalIn: NSRect(x: -size.length * k / 2, y: -size.width * k / 2,
+                                                  width: size.length * k, height: size.width * k))
+            var t = AffineTransform(translationByX: center.x + cos(angle) * outer, byY: center.y + sin(angle) * outer)
+            t.rotate(byRadians: angle)
+            dot.transform(using: t)
+            dot.fill()
+            return
+        }
         let inner = outer - size.length * k
         let path = NSBezierPath()
         path.move(to: NSPoint(x: center.x + cos(angle) * inner, y: center.y + sin(angle) * inner))

@@ -441,6 +441,7 @@ struct MarkSizeConfigTests {
         #expect(g.markSize(.hour) == MarkSize(width: 1.2, length: 4.4))
         #expect(g.markSize(.quarter) == MarkSize(width: 1.2, length: 4.4))
         #expect(g.markInset == 2.2)
+        #expect(g.markStyle == .dashes)
     }
 
     @Test("Size syntaxes", arguments: [
@@ -463,6 +464,14 @@ struct MarkSizeConfigTests {
         #expect(g.markSize(.quarter) == MarkSize(width: 2, length: 6))
         #expect(g.markSize(.hour) == MarkSize(width: 3, length: 3))
         #expect(g.markSize(.minute) == .minuteDefault)
+    }
+
+    @Test("mark_style", arguments: [
+        ("dashes", MarkStyle.dashes), ("dots", .dots), ("DOTS", .dots), (" Dashes ", .dashes),
+        ("round", .dashes), ("", .dashes),
+    ])
+    func testStyle(value: String, expected: MarkStyle) {
+        #expect(Config.parse("mark_style = \(value)").geometry.markStyle == expected)
     }
 
     @Test("mark_inset")
