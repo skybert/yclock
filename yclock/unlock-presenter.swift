@@ -43,6 +43,29 @@ struct ModifierSet: OptionSet, Equatable {
     }
 }
 
+enum ActivationPolicies {
+    static func effectiveShowInDock(option: Bool?, config: Config) -> Bool {
+        option ?? config.showInDock
+    }
+
+    static func startup(showInDock: Bool) -> NSApplication.ActivationPolicy {
+        showInDock ? .regular : .accessory
+    }
+
+    static func switchesOnUnlock(clickThrough: Bool, unlockedInAppSwitcher: Bool, showInDock: Bool) -> Bool {
+        clickThrough && unlockedInAppSwitcher && !showInDock
+    }
+
+    static func idle(showInDock: Bool) -> NSApplication.ActivationPolicy {
+        startup(showInDock: showInDock)
+    }
+
+    static func unlocked(clickThrough: Bool, unlockedInAppSwitcher: Bool, showInDock: Bool) -> NSApplication.ActivationPolicy {
+        switchesOnUnlock(clickThrough: clickThrough, unlockedInAppSwitcher: unlockedInAppSwitcher, showInDock: showInDock)
+            ? .regular : startup(showInDock: showInDock)
+    }
+}
+
 final class ClickThroughPresenter: UnlockPresenter {
     private let window: NSWindow
     private let clockView: ClockView
@@ -53,8 +76,17 @@ final class ClickThroughPresenter: UnlockPresenter {
     private var fastTimer: Timer?
     private var animationTimer: Timer?
     private var monitor: Any?
+    private let useAppSwitcher: Bool
+    private let idlePolicy: NSApplication.ActivationPolicy
+    private let unlockedPolicy: NSApplication.ActivationPolicy
+    private var switchedToRegular = false
 
-    init(window: NSWindow, clockView: ClockView, config: Config) {
+    init(window: NSWindow, clockView: ClockView, config: Config, showInDock: Bool = false) {
+        useAppSwitcher = ActivationPolicies.switchesOnUnlock(
+            clickThrough: true, unlockedInAppSwitcher: config.unlockedInAppSwitcher, showInDock: showInDock)
+        idlePolicy = ActivationPolicies.idle(showInDock: showInDock)
+        unlockedPolicy = ActivationPolicies.unlocked(
+            clickThrough: true, unlockedInAppSwitcher: config.unlockedInAppSwitcher, showInDock: showInDock)
         self.window = window
         self.clockView = clockView
         self.config = config
@@ -118,6 +150,11 @@ final class ClickThroughPresenter: UnlockPresenter {
 
     func showIdle() {
         cancelAnimation()
+        if switchedToRegular {
+            switchedToRegular = false
+            NSApp.setActivationPolicy(idlePolicy)
+            window.orderFrontRegardless()
+        }
         clockView.hideRing()
         window.alphaValue = config.opacity
         window.hasShadow = configuredShadow
@@ -136,6 +173,13 @@ final class ClickThroughPresenter: UnlockPresenter {
         window.alphaValue = 1
         window.hasShadow = true
         window.ignoresMouseEvents = false
+        if useAppSwitcher && !switchedToRegular {
+            switchedToRegular = true
+            let wasActive = NSApp.isActive
+            NSApp.setActivationPolicy(unlockedPolicy)
+            window.orderFrontRegardless()
+            if wasActive { NSApp.activate(ignoringOtherApps: true) }
+        }
         if pulse { clockView.flash() }
     }
 

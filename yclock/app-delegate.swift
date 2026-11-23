@@ -34,8 +34,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         let windowRect = NSRect(x: 100, y: 100, width: config.width * config.scale, height: config.height * config.scale)
 
         // Use command line option if provided, otherwise fall back to config
-        let showInDock = options.showInDock ?? config.showInDock
-        NSApp.setActivationPolicy(showInDock ? .regular : .accessory)
+        let showInDock = ActivationPolicies.effectiveShowInDock(option: options.showInDock, config: config)
+        NSApp.setActivationPolicy(ActivationPolicies.startup(showInDock: showInDock))
         window = NSWindow(contentRect: windowRect,
                          styleMask: [.titled, .fullSizeContentView],
                          backing: .buffered,
@@ -98,7 +98,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
 
         if config.clickThrough {
-            unlockPresenter = ClickThroughPresenter(window: window, clockView: clockView, config: config)
+            unlockPresenter = ClickThroughPresenter(window: window, clockView: clockView, config: config, showInDock: showInDock)
         }
 
         NSApp.activate(ignoringOtherApps: true)

@@ -560,6 +560,13 @@ struct ClickThroughConfigTests {
         for v in ["false", "0", "yes", "", "x"] { #expect(!Config.parse("click_through = \(v)").clickThrough) }
     }
 
+    @Test("unlocked_in_app_switcher values")
+    func appSwitcher() {
+        #expect(!Config.parse("").unlockedInAppSwitcher)
+        for v in ["true", "TRUE", "1"] { #expect(Config.parse("unlocked_in_app_switcher = \(v)").unlockedInAppSwitcher) }
+        for v in ["false", "0", "yes", "", "x"] { #expect(!Config.parse("unlocked_in_app_switcher = \(v)").unlockedInAppSwitcher) }
+    }
+
     @Test("unlock_hover_delay")
     func delay() {
         #expect(Config.parse("unlock_hover_delay = 0.5").unlockHoverDelay == 0.5)

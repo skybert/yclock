@@ -345,3 +345,41 @@ struct RelaunchReentryTests {
         #expect(!c.wantsFastTicks)
     }
 }
+
+@Suite("Activation policy matrix")
+struct ActivationPolicyTests {
+    struct Combo: CustomTestStringConvertible {
+        let clickThrough: Bool, switcher: Bool, dock: Bool
+        var testDescription: String { "ct=\(clickThrough) sw=\(switcher) dock=\(dock)" }
+    }
+
+    static let combos: [Combo] = [false, true].flatMap { ct in
+        [false, true].flatMap { sw in [false, true].map { Combo(clickThrough: ct, switcher: sw, dock: $0) } }
+    }
+
+    @Test("policies for all combinations", arguments: combos)
+    func matrix(c: Combo) {
+        let startup = ActivationPolicies.startup(showInDock: c.dock)
+        let idle = ActivationPolicies.idle(showInDock: c.dock)
+        let unlocked = ActivationPolicies.unlocked(clickThrough: c.clickThrough, unlockedInAppSwitcher: c.switcher, showInDock: c.dock)
+        if c.dock {
+            #expect(startup == .regular && idle == .regular && unlocked == .regular)
+        } else if c.clickThrough && c.switcher {
+            #expect(startup == .accessory && idle == .accessory && unlocked == .regular)
+        } else {
+            #expect(startup == .accessory && idle == .accessory && unlocked == .accessory)
+        }
+        #expect(ActivationPolicies.switchesOnUnlock(clickThrough: c.clickThrough, unlockedInAppSwitcher: c.switcher, showInDock: c.dock)
+                == (!c.dock && c.clickThrough && c.switcher))
+    }
+
+    @Test("effective show_in_dock: option overrides config")
+    func effective() {
+        let off = Config.parse("show_in_dock = false")
+        let on = Config.parse("show_in_dock = true")
+        #expect(ActivationPolicies.effectiveShowInDock(option: true, config: off))
+        #expect(!ActivationPolicies.effectiveShowInDock(option: false, config: on))
+        #expect(!ActivationPolicies.effectiveShowInDock(option: nil, config: off))
+        #expect(ActivationPolicies.effectiveShowInDock(option: nil, config: on))
+    }
+}

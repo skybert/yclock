@@ -25,6 +25,7 @@ public struct Config {
     let windowShadow: WindowShadow
     let geometry: ClockGeometry
     let clickThrough: Bool
+    let unlockedInAppSwitcher: Bool
     let unlockHoverDelay: TimeInterval
     let unlockModifiers: ModifierSet
     let unlockRingWidth: CGFloat
@@ -52,6 +53,7 @@ public struct Config {
         windowShadow: .default,
         geometry: .default,
         clickThrough: false,
+        unlockedInAppSwitcher: false,
         unlockHoverDelay: 2,
         unlockModifiers: ModifierSet.defaultUnlock,
         unlockRingWidth: 10,
@@ -114,6 +116,7 @@ public struct Config {
         var windowShadow = WindowShadow.default
         var geometry = ClockGeometry.default
         var clickThrough: Bool?
+        var unlockedInAppSwitcher: Bool?
         var unlockHoverDelay: TimeInterval?
         var unlockModifiers: ModifierSet?
         var unlockRingWidth: CGFloat?
@@ -213,6 +216,12 @@ public struct Config {
                 case "false", "0": clickThrough = false
                 default: clickThrough = nil
                 }
+            case "unlocked_in_app_switcher":
+                switch value.lowercased() {
+                case "true", "1": unlockedInAppSwitcher = true
+                case "false", "0": unlockedInAppSwitcher = false
+                default: unlockedInAppSwitcher = nil
+                }
             case "unlock_hover_delay":
                 unlockHoverDelay = parseNonNegative(value).map { TimeInterval($0) }
             case "unlock_modifier":
@@ -252,6 +261,7 @@ public struct Config {
             windowShadow: windowShadow,
             geometry: geometry,
             clickThrough: clickThrough ?? Config.default.clickThrough,
+            unlockedInAppSwitcher: unlockedInAppSwitcher ?? Config.default.unlockedInAppSwitcher,
             unlockHoverDelay: unlockHoverDelay ?? Config.default.unlockHoverDelay,
             unlockModifiers: unlockModifiers ?? Config.default.unlockModifiers,
             unlockRingWidth: unlockRingWidth ?? Config.default.unlockRingWidth,

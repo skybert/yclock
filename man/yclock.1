@@ -147,6 +147,9 @@ quarter_mark_size = 3
 .B click_through = \fItrue|false\fR
 Make the window ignore the mouse until unlocked (default: false). Also accepts 1 and 0, case-insensitive. Hovering the pointer over the clock (with the unlock modifier held, if any) fills a ring along the window edge; when full, the window flashes and gets a ring in \fBunlocked_color\fR: it takes clicks, can be dragged, and has a shadow and full opacity. Activating the app (starting it again, \fBopen -a yclock\fR) also unlocks. Moving the pointer out without clicking, or switching to another app, re-locks with the ring draining; hover unlock then re-arms once the pointer has left the window.
 .TP
+.B unlocked_in_app_switcher = \fItrue|false\fR
+While unlocked, show the app in the Dock, Cmd+Tab and menu bar; it returns to a background app when re-locked (default: false). Also accepts 1 and 0, case-insensitive. Only applies with \fBclick_through = true\fR. Has no effect when \fBshow_in_dock\fR is on, since the app is then always in the Dock and Cmd+Tab.
+.TP
 .B unlock_hover_delay = \fISECONDS\fR
 Hover time needed to unlock, and the duration of the ring animations (default: 2). Must be 0 or greater; invalid values use the default. 0 disables hover unlock, so only app activation unlocks, and re-locks instantly.
 .TP
